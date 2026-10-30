@@ -1,0 +1,1756 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: repomix-output/**, *.zip, plans/**
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.agents/
+  rules/
+    backend-edge.md
+    boilerplate-standards.md
+    core-react-state.md
+    multi-ide-setup.md
+    styling-ui.md
+  skills/
+    ask/
+      SKILL.md
+    deep-refactor/
+      SKILL.md
+    delegate/
+      SKILL.md
+    exec/
+      SKILL.md
+    exec-wave/
+      SKILL.md
+    fetch-skill/
+      SKILL.md
+    flash/
+      SKILL.md
+    grillme/
+      SKILL.md
+    plan/
+      SKILL.md
+    refactor/
+      SKILL.md
+    repomix/
+      SKILL.md
+    review/
+      SKILL.md
+    solve/
+      SKILL.md
+    zip-clean/
+      references/
+        troubleshooting.md
+      scripts/
+        zip-clean.ps1
+      SKILL.md
+  WORKFLOWS.md
+.cursor/
+  .cursor/
+    rules/
+      agents.mdc
+      cloudflare-architecture.mdc
+      seo-ssr-hydration.mdc
+      video-audio-media.mdc
+  rules/
+    agents.mdc
+.github/
+  workflows/
+    ci.yml
+  copilot-instructions.md
+.kilo/
+  agent/
+    flash_lite.md
+    flash.md
+    pro.md
+    research.md
+.trae/
+  rules/
+    project_rules.md
+.clinerules
+.windsurfrules
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+howto.info
+kilo.jsonc
+KIMI.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".agents/rules/backend-edge.md">
+---
+trigger: model_decision
+globs: "server/**/*.ts, functions/**/*.ts, wrangler.toml"
+description: "Apply this when working on backend API routes, Cloudflare Pages/Workers, storage integrations, or edge functions."
+---
+
+# Backend & Edge Architecture Guidelines
+
+## Runtime & Security Invariants
+- **Edge Compatibility:** Keep shared API routes compatible with both local Node development and edge runtimes (Cloudflare Workers/Pages Functions). Avoid Node-only filesystem APIs inside edge handlers.
+- **Secret Hygiene:** Never expose server-side API keys or storage credentials to client bundles (`VITE_*` is strictly for public client configuration).
+- **Structured Errors:** Return consistent JSON payloads (`{ error: string, details?: unknown }`) with explicit HTTP status codes.
+
+## Acceptance & Audit Criteria
+1. No server secrets are referenced via `import.meta.env.VITE_*`.
+2. Edge bundle verification passes cleanly without unresolved Node built-ins.
+</file>
+
+<file path=".agents/rules/boilerplate-standards.md">
+---
+trigger: model_decision
+globs: "src/components/**/*.tsx, src/hooks/**/*.ts, src/config/siteConfig.ts, .agents/rules/*.md"
+description: "Apply this when authoring .agents rules, updating white-label SITE_CONFIG settings, or scaffolding React components and custom hooks."
+---
+
+# Boilerplate Standards & Rule Authoring
+
+## 1. Meta-Rule Authoring Standards (for `.agents/rules/*.md`)
+1. **Progressive Disclosure Frontmatter:** Every rule in `.agents/rules/` MUST start with YAML frontmatter using `trigger: model_decision`, explicit `globs: "..."`, and a 1-sentence `description: "Apply this when..."`.
+2. **Strict Token Budget (< 300 Lines):** Keep each rule file concise and domain-focused.
+3. **Falsifiable Audit Checklist:** End every rule file with 2â€“5 concrete, verifiable audit criteria.
+
+## 2. White-Label Configuration SSOT (`src/config/siteConfig.ts`)
+- Keep all brand identity, navigation categories, contact links, CDN endpoints, and SEO defaults in `SITE_CONFIG`.
+
+## Acceptance & Audit Criteria
+1. Every `.agents/rules/*.md` file has valid `trigger: model_decision` frontmatter and is listed in `AGENTS.md`.
+2. New components consume brand/config values from `SITE_CONFIG` rather than hardcoding strings.
+</file>
+
+<file path=".agents/rules/core-react-state.md">
+---
+trigger: model_decision
+globs: "src/store/**/*.ts, src/hooks/**/*.ts, src/services/**/*.ts"
+description: "Apply this when working on React state management (Zustand), custom hooks, API services, or data synchronization."
+---
+
+# React State, Hooks & Services Guidelines
+
+## State Ownership & Separation of Concerns
+- **Zustand Stores (`src/store/`):** Own cross-component and global application state. Avoid deep React Context provider trees for frequently changing state.
+- **Custom Hooks (`src/hooks/`):** Own DOM observers, timers, media lifecycles, and event listeners. Always clean up listeners, timers, and `requestAnimationFrame` handles on unmount.
+- **Pure Utilities (`src/utils/`):** Hold deterministic data transformations, formatting, and geometry math with zero React state dependencies.
+- **Services (`src/services/`):** Encapsulate `fetch` / API calls and response parsing.
+
+## Acceptance & Audit Criteria
+1. Every `useEffect` registering an observer, listener, or timer returns a deterministic cleanup function.
+2. Strict TypeScript interfaces are defined for all store slices, hook options, and return payloads (no `any`).
+</file>
+
+<file path=".agents/rules/multi-ide-setup.md">
+---
+trigger: model_decision
+globs: 'AGENTS.md, .agents/**/*.md'
+description: 'Apply this when configuring IDE adapters, routing workflow commands, or delegating tiered subagents across multi-IDE environments.'
+---
+
+# Shared Instructions & IDE Adapters
+
+This repository supports multiple AI IDEs and autonomous agents. Project policy has one source of truth; IDE files may add only the minimal capability translation required by their host.
+
+## Routing Tree
+
+Adapters must not duplicate project policy or hard-code user-machine paths.
+
+`[IDE Dotfile]` ──points to──> `AGENTS.md` ──delegates to──> `[.agents/rules/*.md & WORKFLOWS.md]`
+
+1. **IDE adapters (e.g., `.clinerules`, `.cursor/rules/agents.mdc`, `KIMI.md`):** Point to the canonical instructions and may translate agent capabilities such as subagents or rate limits. They do not redefine project policy.
+2. **`AGENTS.md` (Root):** The canonical entry point. It enforces host constraints (Windows/PowerShell) and handles global code quality limits.
+3. **`.agents/rules/*.md`:** Domain-specific rules loaded dynamically via progressive disclosure based on the files the AI is editing.
+4. **`.agents/WORKFLOWS.md`:** Global routing for `#tags` and `/commands`.
+
+## Add a New IDE
+
+When integrating a new AI IDE, create its system prompt file and use this template. Add only adapter-specific capability translation below it when needed.
+
+```markdown
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+```
+
+## Unified 3-Tier Model Routing (`#plan`, `#exec`, `#exec-wave`)
+
+All execution workflows follow a **Flash-First, Pro-on-Demand** tiering model based on the 1–10 complexity score assigned per step/batch:
+
+| Tier                      | Complexity Score | Target Scope                                                                       | Subagent Model (`Mode A`)   |
+| :------------------------ | :--------------- | :--------------------------------------------------------------------------------- | :-------------------------- |
+| **Tier 1 (`FLASH_LITE`)** | `1–3`            | Copy updates, simple type exports, config tweaks, minor CSS/Tailwind (<300 lines)  | `flash_lite`                |
+| **Tier 2 (`FLASH`)**      | `4–6`            | Standard component/hook batches (<= 3–4 files, clear interfaces, <500 lines)       | `flash` _(Default)_         |
+| **Tier 3 (`PRO`)**        | `7–10`           | Cross-file Zustand state, SSR/Hydration, Audio/Video lifecycles, files >=500 lines | `pro` _(+ Reviewer at >=8)_ |
+
+- **Auto-Escalation Rule:** If a Tier 1 (`flash_lite`) or Tier 2 (`flash`) step fails validation (`npm run lint` / `npm test`) and survives **one** targeted diagnostic repair attempt, escalate that specific step/batch immediately to Tier 3 (`pro`).
+  - **Zero-PRO Token Guard (`--no-pro` / `--no-pro-escalation`):** If `--no-pro` is explicitly flagged or budget mode is active, automatic PRO escalation is suppressed. The agent halts in **Graceful Pause (Dirty Inspection)** after the single repair attempt to preserve modified files without spending PRO tokens.
+
+## Multi-IDE Host Capability Matrix
+
+When executing `#exec`, `#exec-wave`, `#delegate`, or `#deep-refactor`, translate subagent and tier directives according to the host environment's capabilities:
+
+1. **Mode A — Native Multi-Model Subagents (e.g., Antigravity):**
+   - Triggering `#exec` or `#exec-wave` explicitly authorizes tiered `Model` selection (`'flash_lite' | 'flash' | 'pro'`) over the default `'inherit'`.
+   - Spawn isolated implementation subagents via `invoke_subagent` with `TypeName: 'self'` and explicit `Model: 'flash_lite' | 'flash' | 'pro'` per step/batch. For `Score >= 8` Red-Team audits, spawn a read-only auditor with `TypeName: 'research'`, `Model: 'pro'`, and `Role: 'Red-Team Auditor'` returning a compact 2-point audit report (`Verdict`, `Findings`).
+   - **Kilo Code v7:** Its project `kilo.jsonc` uses an OpenCode-compatible configuration shape. Kilo loads root `AGENTS.md` automatically; list `.agents/WORKFLOWS.md` in the `instructions` array. Map `invoke_subagent` model tiers to Kilo's native `Task` tool and the configured `agent` identifiers (`flash_lite`, `flash`, `pro`, and `research`).
+   - In VS Code, set `"files.autoSave": "afterDelay"` so agent edits are written to disk before filesystem and diff audits.
+   - Support concurrent Scatter-Gather waves for disjoint file inventories.
+   - Emit clickable live stream links immediately upon launching (`[⚡ Watch Stream](conversation://<conversation-id>)` or `[🛡️ Watch Red-Team Audit](conversation://<reviewer-conversation-id>)`).
+   - Enforce the standardized 3-point completion feedback contract (`Status`, `Files Modified`, `Summary`) from all implementation subagents to aggregate clean wave summaries without context bloat.
+2. **Mode B — Fixed-Model or Rate-Limited Subagents (e.g., Kimi Code, Claude Code CLI):**
+   - Spawn subagents using the host's default/inherited model (`inherit` or `subagent_type="coder"`) to keep the Coordinator context clean.
+   - Apply `.agents/skills/flash/SKILL.md` stability rules and the 3-point completion feedback contract inside every subagent.
+   - If the host UI cannot handle `conversation://` URIs, display the subagent ID and transcript file path as a readable fallback. Respect host concurrency limits (such as the sequential queue in `KIMI.md`).
+3. **Mode C — Single-Agent IDEs without Subagents (e.g., Cline, Windsurf):**
+   - Translate parallel waves into sequential, low-context batch passes (read only the files listed in the active batch).
+   - Apply `.agents/skills/flash/SKILL.md` (Single-Action Protocol) for Tier 1–2 steps.
+   - Before executing a Tier 3 (`PRO`, Score >= 7) step, emit a brief model-switch advisory if running on a lightweight/fast model, or perform a dedicated self-review pass before staging if already running on a high-reasoning model.
+4. **Mode D — Cursor (Task Subagents, Limited Model Tiers):**
+   - Cursor exposes isolated subagents via the native `Task` tool. Map abstract `invoke_subagent` / `TypeName` directives to `Task` — never call a nonexistent `invoke_subagent` tool.
+   - **Implementer mapping:** `TypeName: 'self'` → `Task` with `subagent_type: "generalPurpose"` (or the host's best write-capable equivalent). Pass the full step/batch spec or `.tmp/` plan path in `prompt`; enforce the 3-point return contract and forbid subagent `git commit` / version bumps.
+   - **Read-only auditor mapping:** `TypeName: 'research'` → `Task` with `subagent_type: "explore"` (or an explicit read-only prompt). Require the compact 2-point audit report (`Verdict`, `Findings`).
+   - **Model tiers:** Do **not** pass `flash_lite` / `flash` / `pro` as Cursor model slugs. Default `model: "inherit"`. Treat Tier 1–2 as a **behavior** contract (apply `.agents/skills/flash/SKILL.md` inside the subagent or inline). Treat Tier 3 as Coordinator high-reasoning + explicit self-review (or spawn `Task` with `inherit` on a strong parent). Only pass a non-`inherit` slug when the user explicitly requested a model listed in the session's available subagent models.
+   - **Inline vs. Task:** For a single Tier 1–2 step (`#exec N`) on a matching parent model, execute inline under Flash. For `#exec all`, `#exec-wave`, `#delegate`, `#solve`, or when the parent model differs from the step tier, spawn `Task` for context isolation.
+   - **Waves:** Parallel Scatter-Gather is allowed when batch file inventories are disjoint. Overlapping inventories stay serial. Emit Cursor agent links as `[Name](agent-id)` (not `conversation://`). Persist plans/reports in `.tmp/`.
+   - **Domain rules:** Before editing, Read every matching `.agents/rules/*.md` from the AGENTS routing table (Cursor does not auto-load those files unless a thin `.cursor/rules/*.mdc` mirror exists).
+
+## Self-Contained Lockstep Dependency Group
+
+Six files form one atomic documentation unit. A change to the tier table, the diff-audit protocol, the handoff link labels, or the subagent prompt contract in any one of them must be verified for parity in all of them within the same batch:
+
+`.agents/rules/multi-ide-setup.md` · `.agents/skills/plan/SKILL.md` · `.agents/skills/exec/SKILL.md` · `.agents/skills/exec-wave/SKILL.md` · `.agents/skills/delegate/SKILL.md` · `.agents/skills/solve/SKILL.md`
+
+- **No partial updates:** Never stage a lockstep change while another group member still documents the previous tier split, audit protocol, or link-label convention.
+- **Parity probe:** `Select-String -Path .agents/skills/*/SKILL.md -Pattern 'flash_lite'` must match every execution skill in the group.
+
+## Combo Anti-Phantom Diff Audit
+
+Every subagent return — and every lockstep commit — requires both probes, because neither one alone is complete:
+
+```powershell
+git --no-pager diff --name-only
+git --no-pager status --porcelain
+```
+
+`git diff --name-only` omits untracked files; `git status --porcelain` alone blurs the modified/created distinction. Reconcile the **union** of both outputs against the plan's File Inventory.
+
+- **Phantom reporting:** An assigned file absent from the union means the batch did not actually touch it. Reject the subagent's `SUCCESS` as `INCOMPLETE_TASK` / `PHANTOM_REPORTING` and run a targeted completion pass before staging anything.
+
+## Shared Cross-IDE Working State (`.tmp/`)
+
+For workflows that maintain execution context or reports across IDE boundaries (such as `#solve` and `#delegate`), the living plan and final change report are stored at `.tmp/solve_report.md` (gitignored). This ensures that any editor or IDE can open and display the report with standard `file:///` markdown links without depending on IDE-internal storage directories.
+
+## Acceptance & Audit Criteria
+
+1. **Canonical Root Reference:** All IDE adapter dotfiles (.clinerules, .cursor/rules/agents.mdc, KIMI.md, GEMINI.md) strictly point to `AGENTS.md` as the single canonical source of truth.
+2. **3-Tier Model Table Parity:** The tier table reflects `flash_lite` (Score 1–3), `flash` (Score 4–6), and `pro` (Score 7–10) consistently across all workflow definitions.
+3. **Subagent Type Identity:** Implementation subagents use abstract `TypeName: 'self'` (Mode A: `invoke_subagent`; Mode D: Cursor `Task` / `generalPurpose`) with host-appropriate model constraints; read-only auditors use abstract `TypeName: 'research'` (Mode A: `research`; Mode D: `explore`).
+4. **IDE-Independent Storage:** Living execution plans and cross-IDE handoffs strictly write to `.tmp/` (gitignored), never IDE-internal state storage.
+5. **Cursor Adapter Parity:** `.cursor/rules/agents.mdc` documents Mode D (not Mode C) and must not instruct agents to call `invoke_subagent` or pass `flash_lite`/`flash`/`pro` as Cursor model slugs.
+</file>
+
+<file path=".agents/rules/styling-ui.md">
+---
+trigger: model_decision
+globs: "src/**/*.tsx, src/**/*.css"
+description: "Apply this when working on UI layout, components, modals, animations, responsive styling, or Tailwind CSS."
+---
+
+# UI & Styling Guidelines
+
+## Styling & Animation Defaults
+- **Tailwind CSS First:** Use Tailwind utility classes as the default styling mechanism. Reserve global CSS for keyframes, scrollbars, View Transitions, and pseudo-elements.
+- **Animations:** Use `motion/react` for interactive component animations and layout transitions.
+- **Icons:** Use `lucide-react`.
+- **Viewport & Input:** Use dynamic viewport units (`dvh`) for fullscreen layouts. Never infer touch vs. mouse solely from viewport width; combine `@media (hover: hover)` with Pointer Event `pointerType`.
+
+## Acceptance & Audit Criteria
+1. No hardcoded brand strings or inline magic hex values that belong in `SITE_CONFIG` / theme tokens.
+2. Animations import from `motion/react` (not legacy `framer-motion`).
+3. Component files stay below the 300-line warning threshold (and strictly below the 500-line decomposition limit).
+</file>
+
+<file path=".agents/skills/ask/SKILL.md">
+---
+name: ask
+description: Explain or investigate without modifying files. Triggered when the user uses the #ask tag or /ask command.
+---
+
+# Ask / Read-Only Investigation Skill (`#ask`)
+
+1. **Read-Only Contract:** Do NOT create, edit, stage, or delete any repository files.
+2. **Targeted Inspection:** Read only the files and `.agents/rules/*.md` domain rules relevant to the user's question.
+3. **Traceable Answers:** Reference exact file paths and line ranges using clickable markdown links.
+</file>
+
+<file path=".agents/skills/deep-refactor/SKILL.md">
+---
+name: deep-refactor
+description: >-
+  Decompose large components, hooks, or server files (>300-500 lines) into modular subroutines, hooks, and utilities with 100% behavior parity. Supports step-by-step Batch Mode and fast One-Shot Blueprint Mode.
+  Triggered by #deep-refactor, /deep-refactor, #refrag, /refrag, #oneshot, or /oneshot.
+---
+
+# Deep-Refactor Workflow (`#deep-refactor`)
+
+**Purpose:** Safely decompose monolithic files into focused hooks (`src/hooks/`), pure utilities (`src/utils/` or `*Utils.ts`), types (`*.types.ts`), and leaf components without changing observable runtime behavior.
+
+**Boundary vs. `#refactor`:** `#refactor` owns structure-preserving changes inside the current architecture (extractions, type tightening, duplication removal, files under ~300 lines). `#deep-refactor` is the dedicated path for decomposing monolithic files (>= 300 lines) with 100% behavior parity — never route that work through `#refactor`.
+
+---
+
+## 1. Execution Modes (Choose Based on Context)
+
+### Mode A: Interactive Batch Mode _(Default when exploring & refactoring live)_
+
+- **Limit:** Maximum **3 implementation files** per batch (test files `*.test.ts` and docs `*.md` do not count toward the limit).
+- **Validation per Batch:** Run `npm run lint` and `npm test` after each batch and create a checkpoint commit on `preview`.
+- **Handoff Checkpoint:** Pause after Batch 3 to offer a concise session-handoff summary unless Auto-Pilot is active.
+- **Recommended Model:** `PRO` or `Flash (High Thinking)`.
+
+### Mode B: One-Shot Blueprint Mode _(Triggered by `#oneshot`, "alle auf einmal", or when a complete plan/code blueprint is provided)_
+
+- **No Batch/File Limit:** Write all new and updated modules in a **single pass** without intermediate stops.
+- **Single Validation Pass:** Run `npx prettier --write <scoped-files>`, `npm run lint`, `npm test`, and `npm run check` **once** after all files are written.
+- **Recommended Model:** `Flash (Low or Medium Thinking)` for maximum speed when applying pre-verified code. When using Flash, strictly follow the Single-Action Protocol from `flash/SKILL.md`.
+
+---
+
+## 2. Non-Negotiable Guardrails (Both Modes)
+
+1. **100% Behavior & Export Parity:**
+   - Preserve all public props, named/default exports, and re-exported types so parent callers require zero changes unless explicitly in scope.
+   - Preserve all DOM querySelector classes (e.g., `.zoom-media-container`, `.media-zoom-target`, `[data-video-controls]`), inline math (letterbox/pillarbox geometry), event capture order (`onPointerDownCapture` vs `onClickCapture`), and platform keys (`ios-stable-video`).
+   - Keep `useEffect`, `useMemo`, and `useCallback` dependency arrays semantically identical.
+2. **Dirty Working Tree Protection:**
+   - Run `git status --short` in Preflight (B0).
+   - Never stage, revert, format, or overwrite pre-existing modified or untracked user files.
+   - Never use `git add .`, `git reset`, `git checkout`, or `git clean`. Always stage explicit file paths.
+3. **Branch & Remote Safety:**
+   - Commit only on `preview` or a dedicated feature branch (`never` on `main`/`master`).
+   - Never run `git push` automatically.
+
+---
+
+## 3. Standard Execution Phases
+
+1. **Phase 0 (Preflight):** Check `git status --short`, inspect target file + all callers, record baseline for `npm run lint` and `npm test`.
+2. **Phase 1 (Pure Utils & Types):** Extract `*.types.ts` and pure helper functions (`*Utils.ts`) + optional unit test (`*Utils.test.ts`).
+3. **Phase 2 (Custom Hooks):** Extract state, timers, DOM observers, and event capture handlers into `src/hooks/<domain>/` and update `index.ts` barrel exports.
+4. **Phase 3 (Leaf Components & Orchestrator):** Extract isolated JSX sub-trees into leaf components and reduce the main component to a clean orchestrator (<200 lines).
+5. **Phase 4 (Documentation Sync — Mandatory):** Check whether `AGENTS.md` or any file in `.agents/rules/` (`core-react-state.md`, `mobile-touch.md`, `video-audio-media.md`, `styling-ui.md`, `cloudflare-architecture.md`) references the refactored file and update the architecture notes accordingly.
+6. **Phase 5 (Final Verification & Commit):** Run scoped Prettier, `npm run lint`, `npm test`, `npm run check`, bump `package.json` patch version once (if `package.json` is clean), commit on `preview`, and output a concise Completion Report (line-count delta + parity checklist).
+</file>
+
+<file path=".agents/skills/delegate/SKILL.md">
+---
+name: delegate
+description: Writes a focused execution plan to .tmp/ and spawns an isolated subagent to execute it, preventing Coordinator context bloat. Triggered by #delegate or /delegate.
+---
+
+# Context-Saving Subagent Delegation (`#delegate`)
+
+1. **Persist Plan:** Write the scoped batch specification and File Inventory to `.tmp/delegate_plan.md`.
+2. **Spawn Subagent:** Delegate implementation according to the host mode and 3-Tier table in `.agents/rules/multi-ide-setup.md`. Forbid the subagent from running `git commit` or bumping `package.json`.
+3. **Verify Return:** Run the Combo Anti-Phantom Diff Audit from `.agents/rules/multi-ide-setup.md` and `npm run lint` upon completion.
+</file>
+
+<file path=".agents/skills/exec/SKILL.md">
+---
+name: exec
+description: Implement steps from the most recent plan. Triggered when the user uses the #exec tag or /exec command.
+---
+
+# Plan Execution Skill (`#exec`)
+
+1. **Tiered Execution:** Follow the 3-Tier Model Routing and Multi-IDE rules in `.agents/rules/multi-ide-setup.md`.
+2. **Domain Rule Check:** Before editing any file in a batch, ensure its matching `.agents/rules/*.md` files from `AGENTS.md` have been read.
+3. **Verification & Anti-Phantom Audit:** Run the Combo Anti-Phantom Diff Audit (`git --no-pager diff --name-only` and `git --no-pager status --porcelain`) and `npm run lint` before marking a batch complete.
+</file>
+
+<file path=".agents/skills/exec-wave/SKILL.md">
+---
+name: exec-wave
+description: >-
+  Orchestrates multi-batch roadmaps (such as 00_MASTER_ROADMAP.md) across serial and parallel waves using tiered subagents (flash_lite, flash, pro) and Multi-IDE fallbacks without bloating the main Coordinator context.
+  Triggered by #exec-wave, /exec-wave, #wave-exec, or /wave-exec.
+---
+
+# Exec-Wave Workflow (`#exec-wave`)
+
+**Purpose:** Execute multi-batch architectural plans (`plans/Batch_*.md`) organized into serial phases and parallel waves while keeping the main Coordinator agent's context window minimal and routing each batch to the most cost- and speed-effective model tier.
+
+---
+
+## Core Execution Protocol
+
+1. **Read Only the Master Roadmap & Resolve Batch Tiers:**
+   - Read the referenced roadmap file (e.g., `plans/00_MASTER_ROADMAP.md`) to identify the execution topology (Serial Phases vs. Parallel Waves) and each batch's complexity metadata (`[Score: X/10 | Tier: FLASH_LITE | FLASH | PRO]`).
+   - **CRITICAL:** The Coordinator MUST NOT read the full target source files or implement code inline in the main conversation (unless operating in a Mode C Single-Agent IDE without subagents; Mode D Cursor may use `Task` isolation instead — see Section 5).
+   - **3-Tier Per-Batch Model Selection (Flash-First Strategy):** Triggering `#exec-wave` / `/exec-wave` (or `#wave-exec` / `/wave-exec`) constitutes explicit user authorization to pass `Model: 'flash_lite' | 'flash' | 'pro'` to `invoke_subagent` (overriding default `'inherit'` in Mode A):
+     - **Tier 1 (`flash_lite` — Score 1–3):** Trivial/mechanical batches (copy, simple types, static config, minor Tailwind/CSS in files <300 lines, strictly capped at <= 2–3 files). Auto-Upgrade Guard: If a batch tagged `flash_lite` touches 4 or more files, the Coordinator MUST automatically escalate its Model to `flash` upon invocation to prevent subagent truncation and phantom reporting.
+     - **Tier 2 (`flash` — Score 4–6, Default):** Standard scoped implementation batches (<= 3–4 files, clear interfaces, files <500 lines). If a batch has no explicit tier tag and touches only files <500 lines, default to `flash`.
+     - **Tier 3 (`pro` — Score 7–10 or Unsliced Files >=500 Lines):** Complex cross-file state refactors (Zustand, SSR/Hydration, Audio/Video lifecycles), unsliced files >=500 lines (`AGENTS.md` Mandatory Pro Decomposition), or high blast-radius architecture batches. **Flash Wave Exemption:** If `#flash` is specified in the trigger or roadmap, batches touching >=500 line files route to `flash` instead of `pro`, provided the batch File Inventory <= 3 files and complexity score <= 6.
+
+2. **Serial Phase Execution:**
+   - For a serial batch (e.g., `plans/Batch_01_*.md`), spawn a single subagent via `invoke_subagent` using the batch's resolved tier:
+     - **TypeName:** `self`
+     - **Model:** `flash_lite` (Score 1–3) | `flash` (Score 4–6) | `pro` (Score 7–10)
+     - **Role:** `Batch Executor`
+     - **Prompt:** _"Read the execution plan at `<relative-path-to-batch.md>` and implement all file changes strictly as specified, adhering to `.agents/skills/flash/SKILL.md` stability rules. Do NOT run git commit or shell commands; only perform file read/edit/write operations. You MUST inspect and modify every file listed in your plan's File Inventory. Upon completing your assigned batch, report back strictly using this 3-point format:\n1. Status: [SUCCESS | BLOCKED | FAILED]\n2. Files Modified: [List ONLY the relative paths you actually modified or created]\n3. Summary: [1-2 sentences summarizing changes made or blockers encountered]\nDo NOT dump complete source files into the report."_
+   - **Serial Launch Card (Clickable Stream Link):** Immediately after invoking `invoke_subagent`, output a launch card with a clickable deep link to the subagent's live session before entering the wait state:
+     - Format: `[⚡ Watch Batch Live Stream](conversation://<subagent-conversation-id>)`
+   - **Gather & Validation:** Wait for the subagent to report back, log its 3-point feedback summary, run the validation gate (`npm run lint` and `npm test`), and create the checkpoint commit on the active development branch (`preview` or dedicated `feature/*`/`task/*` branch; warn if on `main` or `master`).
+
+3. **Parallel Wave Execution (Hybrid Scatter-Gather):**
+   - For a parallel wave (e.g., Wave 1: `Batch_02`, `Batch_03`, `Batch_04`), verify from the roadmap that their File Inventories are strictly disjoint (zero overlapping files).
+   - **Scatter:** Spawn one subagent per batch concurrently via `invoke_subagent` with `TypeName: 'self'`, `Role: 'Batch Executor'`, and its batch-specific `Model` (`flash_lite`, `flash`, or `pro`). Routine `flash` batches and complex `pro` batches can run side-by-side in the same wave so only the complex batch uses Pro tokens.
+     - **Strict Subagent Rule:** Parallel subagents are strictly forbidden from running terminal/shell commands (`npm`, `tsc`, `git`) to prevent lock contention and race conditions. They must ONLY read, create, or edit their assigned files.
+     - **Standard Subagent Prompt:** Every parallel subagent MUST be instructed with the standard 3-point feedback contract:
+       _"Read the execution plan at `<relative-path-to-batch.md>` and implement all file changes strictly as specified, adhering to `.agents/skills/flash/SKILL.md` stability rules. Do NOT run git commit or shell commands; only perform file read/edit/write operations. You MUST inspect and modify every file listed in your plan's File Inventory. Upon completing your assigned batch, report back strictly using this 3-point format:\n1. Status: [SUCCESS | BLOCKED | FAILED]\n2. Files Modified: [List ONLY the relative paths you actually modified or created]\n3. Summary: [1-2 sentences summarizing changes made or blockers encountered]\nDo NOT dump complete source files into the report."_
+   - **Wave Launch Dashboard (Mandatory Clickable Links):** Immediately after triggering `invoke_subagent`, the Coordinator MUST render a structured Wave Launch Dashboard table in chat before stopping tool calls to wait:
+     ```markdown
+     ### 🌊 Parallel Wave Launched: Wave X
+
+     | Batch      | Tier & Model                | Assigned Scope / Files | Live Stream Link                                   |
+     | :--------- | :-------------------------- | :--------------------- | :------------------------------------------------- |
+     | `Batch_02` | `FLASH` (`flash`)           | `src/components/...`   | [⚡ Watch Batch_02 Stream](conversation://<id-02>) |
+     | `Batch_03` | `FLASH_LITE` (`flash_lite`) | `src/types/...`        | [⚡ Watch Batch_03 Stream](conversation://<id-03>) |
+     | `Batch_04` | `PRO` (`pro`)               | `src/store/...`        | [⚡ Watch Batch_04 Stream](conversation://<id-04>) |
+     ```
+   - **Gather & Auto-Escalation Gate:** Once all parallel subagents in the wave have reported back:
+     1. **Wave Completion Summary:** Aggregate the subagents' 3-point reports into a concise bulleted summary in the main chat (Status, modified files, brief summary).
+     2. **Combo Anti-Phantom Diff Audit:** Run both `git diff --name-only` (modified tracked files) and `git status --porcelain` (adds untracked files) in the Coordinator terminal, then reconcile the union of both outputs against each batch plan's `File Inventory` — a single command is insufficient because `git diff --name-only` omits untracked files and `git status --porcelain` blurs the modified/created distinction. If any file assigned for modification shows zero diffs, immediately reject the subagent's SUCCESS status as an `INCOMPLETE_BATCH` / `PHANTOM_REPORTING` and perform a targeted completion/escalation pass before running validation commands.
+     3. **Sequential Validation:** Run `npm run lint` and `npm test` sequentially in the main Coordinator terminal.
+     4. **Auto-Escalation (`FLASH` → `PRO`) & Zero-PRO Guard:**
+        - **Standard:** If a `flash_lite` or `flash` batch caused a type, lint, or test failure that survives **one** targeted Coordinator fix, immediately re-delegate that specific batch's files to a `pro` subagent (`TypeName: 'self'`, `Model: 'pro'`, `Role: 'Batch Executor'`). Output the escalation stream link: `[🚨 Watch Escalation Stream (PRO)](conversation://<pro-conversation-id>)`. Enforce the same 3-point feedback contract.
+        - **Zero-PRO Token Guard (`--no-pro` / `--no-pro-escalation`):** If the command includes `--no-pro`, `--no-pro-escalation`, or the user explicitly instructs to suppress PRO escalation to prevent token consumption, do NOT escalate to `pro`. If the single targeted Coordinator fix does not resolve the failure, halt the wave immediately in **Graceful Pause (Dirty Inspection)**: preserve all modified intermediate files on disk without destructive resets, run `git diff` and compiler checks to log the exact errors, and notify the user: `[⚠️ Graceful Pause (Dirty Inspection): Wave halted without PRO escalation. Modified files preserved on disk for manual inspection.]`.
+     5. **Red-Team Audit for Critical Batches:** If any batch in the wave had Score >= 8 (`Tier: PRO`), spawn a read-only Reviewer subagent via `invoke_subagent` with `TypeName: 'research'`, `Model: 'pro'`, `Role: 'Red-Team Auditor'` on that batch's modified files before committing. Output the reviewer stream link: `[🛡️ Watch Red-Team Audit](conversation://<reviewer-conversation-id>)`, and require a compact 2-point audit report (`1. Verdict: [PASS | BLOCKING_ISSUES]`, `2. Findings: [Concise file:line bullets or "None"]`).
+     6. Stage all files from the wave explicitly by relative path (`git add <file1> <file2> ...` derived directly from the audited diffs — NEVER run blind `git add .` or `git add -A`) and create a single consolidated checkpoint commit for the wave.
+
+4. **Final Verification Gate (After Final Phase):**
+   - Run the full repository verification suite sequentially (Single-Action Protocol):
+     1. `npm run lint`
+     2. `npm test`
+     3. Run any domain-specific regression scripts required by the roadmap (e.g., `npx tsx scripts/media-canonicalization.regression.ts` when media or URL canonicalization logic was touched).
+     4. `npm run check`
+   - Bump the patch version in `package.json` once (`+0.0.1`, exclusively by the Coordinator, unless an explicit config batch in the roadmap already bumped it) and commit the final state on the active development branch (`preview` or dedicated `feature/*`/`task/*` branch; warn if on `main` or `master`, and never `git push` without explicit user instruction).
+
+5. **Multi-IDE Capability Translation (Cross-IDE Portability):**
+   - Adapt wave execution automatically to the host environment (see `.agents/rules/multi-ide-setup.md`):
+     - **Mode A — Native Multi-Model Subagents (e.g., Antigravity):** Execute full parallel Scatter-Gather with `TypeName: 'self'` (or `'research'` for Red-Team audits) and per-batch `Model: 'flash_lite' | 'flash' | 'pro'`. Emit live clickable links via `[⚡ Watch Stream](conversation://<conversation-id>)` and aggregate the 3-point feedback reports in the Gather phase.
+     - **Mode B — Fixed-Model or Rate-Limited Subagents (e.g., Kimi Code / CLI Agents):** Spawn subagents with `Model: 'inherit'` to preserve context isolation, enforce `.agents/skills/flash/SKILL.md` and the 3-point feedback contract inside each subagent, and respect host concurrency rules (e.g., sequential subagent queue with pacing in `KIMI.md`). If the UI cannot handle `conversation://` URIs, output the subagent ID and the absolute path to its transcript file (`file:///<appDataDir>/brain/<conversation-id>/.system_generated/logs/transcript.jsonl`) as a readable fallback.
+     - **Mode C — Single-Agent IDEs without Subagents (e.g., Cline / Windsurf):** Execute batches sequentially in strict context-hygiene passes (read only the current batch's target files, apply `.agents/skills/flash/SKILL.md` Single-Action Protocol, emit short 3-point feedback per batch pass, and validate per wave). Before starting a `Tier: PRO` batch (Score >= 7), emit a brief model-switch advisory if running on a fast/lightweight model, or perform an explicit self-review pass before staging.
+     - **Mode D — Cursor (Task Subagents):** Map each batch to Cursor `Task` (`generalPurpose` implementer; `explore` for Score >= 8 auditors). Default `model: "inherit"`; never pass `flash_lite`/`flash`/`pro` as Cursor model slugs. Parallel Scatter-Gather only for disjoint file inventories; otherwise serial. Link via `[Name](agent-id)`; enforce Flash SKILL + 3-point feedback inside each subagent; persist wave plans/reports in `.tmp/`.
+
+> [!NOTE] **Lockstep Dependency Group:** This file belongs to the execution lockstep group (`multi-ide-setup`, `plan`, `exec`, `exec-wave`, `delegate`, `solve`). The 3-tier routing table, the Combo Anti-Phantom Diff Audit, and the handoff link labels must stay identical across the group; see `.agents/rules/multi-ide-setup.md`.
+</file>
+
+<file path=".agents/skills/fetch-skill/SKILL.md">
+---
+name: fetch-skill
+description: >-
+  Fetch, sanitize, and import external skill templates into the workspace.
+  Triggered when the user requests finding, importing, or building a skill
+  for a specific topic (e.g., "Find a skill for [topic]", "Import a skill for [topic]").
+  Also triggered by #fetch-skill or /fetch-skill.
+---
+
+# Fetch-Skill Workflow
+
+**Purpose:** Discover external skill templates, deep-transform them to match the project's tech stack and architectural conventions, and install them as first-class Antigravity skills in the workspace.
+
+## Phase 1: Headless Discovery
+
+1. **Search** for skill templates matching the user's topic using tool calls:
+   - GitHub API or web search targeting `vercel-labs/skills`, `vercel-labs/agent-skills`, and `skills.sh` registry.
+   - Broader web search for `"<topic> SKILL.md"` or `"<topic> agent skill template"` as fallback.
+2. **Never** use interactive CLI tools like `npx skills` — these require TTY input and block the agent.
+3. **Collect** up to 3 candidate results with name, source URL, and short description.
+
+## Phase 2: Selection
+
+- **Multiple matches (2+):** Present the top 3 candidates to the user with name, source, and one-line description. Let the user choose.
+- **Single match:** Proceed directly with that result.
+- **No match:** Inform the user that no suitable template was found and suggest refining the search terms or describing the desired skill manually.
+
+## Phase 3: Raw Extraction
+
+1. Read the raw content of the selected skill's `SKILL.md` directly from the web (GitHub raw URL or equivalent).
+2. If the skill has a `references/` directory with additional documentation, note the file list but do not fetch unless needed for transformation.
+
+## Phase 4: Deep Transform
+
+Transform the extracted content into a clean Antigravity skill that matches the project's conventions:
+
+1. **Strip LLM-specific boilerplate:**
+   - Remove Claude XML tags (`<system>`, `<instructions>`, `<artifact>`, etc.).
+   - Remove agent-specific CLI instructions (e.g., `claude mcp add`, `cursor settings`, `codex configure`).
+   - Remove platform-specific installation steps that do not apply to Antigravity.
+
+2. **Adapt to project tech stack:**
+   - Derive the project's tech stack, architecture patterns, and coding conventions from the active project rules (`AGENTS.md` / `GEMINI.md`), which are already loaded into context.
+   - Rewrite framework-specific instructions to match the project's actual stack (e.g., if the source assumes Next.js but the project uses Vite + React, adapt accordingly).
+   - If no project rules are available (no active workspace or no `AGENTS.md`), import the skill generically without stack-specific adaptation and note this in the confirmation message.
+
+3. **Rewrite into the project's skill style:**
+   - Use clear, imperative bullet points for actionable instructions.
+   - Remove philosophical preambles and generic advice the agent already knows.
+   - Include validation/verification steps where appropriate.
+   - Structure with numbered phases or steps for complex workflows.
+
+4. **Generate valid YAML frontmatter (YAML Safe):**
+   - `name`: lowercase, hyphenated, derived from the skill topic.
+   - `description`: Always use folded block scalar (`description: >-`) or double quotes so `#tag` and `/command` triggers are never stripped as YAML comments. Include both `#<name>` and `/<name>`.
+
+5. **Code Snippet & Import Coherence:**
+   - If the template includes code snippets, type definitions, or boilerplate, never rely on blind LLM generation.
+   - Ensure imports match actual workspace packages and follow valid TypeScript/JavaScript import syntax without hallucinated specifiers.
+
+## Phase 5: Collision Check
+
+- Check if `.agents/skills/<name>/` already exists in the workspace.
+- **If it exists (default):** Abort immediately. Inform the user that a skill with this name already exists at the target path.
+- **Explicit overwrite/update path (`--force` / `--update`):** Only when the request carries `--force` or `--update`, or the user explicitly confirms an overwrite, re-import in place: back up the existing `SKILL.md` to `.tmp/skills-backup/<name>-<timestamp>.md`, then overwrite `SKILL.md` and refresh `references/`. `--update` keeps the existing `.agents/WORKFLOWS.md` trigger registration untouched; `--force` re-registers it.
+- **If clear:** Proceed to write.
+
+## Phase 6: Write to Workspace & Auto-Register
+
+1. Create the directory `.agents/skills/<name>/`.
+2. Write the transformed content to `.agents/skills/<name>/SKILL.md`.
+3. If the source had substantial reference documentation, create a `references/` subdirectory and write condensed reference files there.
+4. Target is always the **workspace** (`.agents/skills/`) unless the user explicitly requests global installation (`~/.gemini/config/skills/`).
+5. **Auto-Register in `.agents/WORKFLOWS.md`:** Append the new skill triggers to `.agents/WORKFLOWS.md`:
+   `- #<name> (or /<name>): .agents/skills/<name>/SKILL.md`
+
+## Phase 7: Validate
+
+- Re-read the written `SKILL.md` file.
+- Verify that YAML frontmatter contains valid `name` and un-truncated `description` fields.
+- **AST / Import Validation on Code Assets:** If the skill generates runnable helper scripts (in `scripts/`) or code templates, run the project's deterministic terminal check (`npm run lint` or `tsc --noEmit`) to verify syntax and import integrity instead of trusting model output.
+- If validation fails, fix the issues and re-write.
+
+## Phase 8: Confirm
+
+- Output a concise confirmation message stating:
+  - Skill name and written target path.
+  - Source it was derived from.
+  - Stack adaptations applied (if any).
+  - Any caveats or limitations.
+- Do NOT reproduce the full skill content in chat.
+</file>
+
+<file path=".agents/skills/flash/SKILL.md">
+---
+name: flash
+description: Enforce high-stability execution rules optimized for high-speed / Flash models. Triggered when the user uses the #flash or /flash command.
+---
+
+# High-Stability Flash Execution Rules (`#flash`)
+
+1. **Micro-Batches:** Touch at most 3 files per step. Never perform whole-file rewrites on files >= 500 lines.
+2. **Single-Action Protocol:** Execute shell commands one at a time without chaining `&&` or `;`.
+3. **Trace & Verify:** If an edit or lint check fails, inspect the exact lines with `read_file` or `Select-String` before attempting a single targeted fix.
+</file>
+
+<file path=".agents/skills/grillme/SKILL.md">
+---
+name: grillme
+description: Relentlessly interview the user on every aspect of their idea, decision, or plan. Triggered when the user uses the #grillme or /grillme command.
+---
+
+# Architecture Interview Skill (`#grillme`)
+
+1. **No Premature Coding:** Do NOT modify code during `#grillme`.
+2. **Inspect First:** If a question can be answered by reading the repository, read the relevant files yourself instead of asking the user.
+3. **One Question at a Time:** Walk down the design tree (scope, state ownership, edge cases, failure paths) asking focused, high-leverage questions until all ambiguities are resolved.
+</file>
+
+<file path=".agents/skills/plan/SKILL.md">
+---
+name: plan
+description: Inspect the relevant repository context and create a detailed plan before proposing changes. Triggered when the user uses the #plan tag or /plan command.
+---
+
+# Implementation Planning Skill (`#plan`)
+
+1. **Read-Only Phase:** Inspect affected files and matching `.agents/rules/*.md` rules without modifying source files.
+2. **Structured Steps & Complexity Scoring:** Break the implementation into numbered steps/batches. Assign each step a Complexity Score (`1â€“10`) and Tier (`FLASH_LITE`, `FLASH`, or `PRO`) per `.agents/rules/multi-ide-setup.md`.
+3. **Explicit File Inventory:** List the exact files to create or modify in each step and specify the verification commands from `AGENTS.md`.
+</file>
+
+<file path=".agents/skills/refactor/SKILL.md">
+---
+name: refactor
+description: Improve structure and maintainability without intentionally changing observable behavior. Triggered when the user uses the #refactor tag or /refactor command.
+---
+
+# Behavior-Preserving Refactor Skill (`#refactor`)
+
+1. **100% Behavior Parity:** Preserve all existing props, public types, side effects, and user-visible behavior.
+2. **Modular Extraction:** Extract cross-component state to `src/store/`, lifecycle/observers to `src/hooks/`, pure logic to `src/utils/`, and leaf UI to `src/components/`.
+3. **Verification:** Run `npm run lint` and `npm test` to verify zero regressions.
+</file>
+
+<file path=".agents/skills/repomix/SKILL.md">
+---
+name: repomix
+description: >-
+  Pack and split the codebase into AI-friendly context chunks with a strict maximum limit of 130,000 characters per file, semantically partitioned by directory boundaries, followed by an automated character audit.
+  Triggered by #repomix, /repomix, #bundle, /bundle, #repomix-split, /repomix-split, or requests to bundle or split the repository.
+---
+
+# Repomix Codebase Chunking & Bundler Workflow
+
+Pack the repository into semantically partitioned chunks with a strict maximum limit of **130,000 characters per chunk** (`repomix-output/bundle.*.txt`), designed for LLM context windows, multi-agent analysis, or external AI platforms.
+
+## Core Architecture & 130k Partitioning Strategy
+
+1. **Semantic Grouping (Preserving Code Context):**
+   Repomix uses top-level directory boundaries to group files logically. A single file or function is **never sliced down the middle** across chunks.
+2. **Buffer Margin for 130,000 Characters:**
+   In `repomix.config.json`, `splitOutput` is set to `120000` (bytes). This 10,000-character safety margin accounts for XML wrapping, file headers, directory trees, and token metrics, ensuring the final files remain strictly `<= 130,000 characters`.
+3. **Automated Audit:**
+   Every bundling run is immediately verified by `scripts/patches_and_tests/repomix-audit.ps1`, reporting the exact character count, byte size, and pass/fail status per chunk.
+
+---
+
+## Execution Protocols
+
+### Option A: Standard Full-Repository Packaging (Interactive or Direct)
+
+From PowerShell or Terminal:
+
+```powershell
+# Non-interactive execution (safe for agent automation, no pause prompts)
+.\repomix.bat --non-interactive
+```
+
+Or execute via npm:
+
+```powershell
+npm run repomix -- --non-interactive
+```
+
+Or run via explicit CLI commands:
+
+```powershell
+# 1. Clean previous chunks
+if (Test-Path repomix-output) { Remove-Item -Recurse -Force repomix-output\* }
+
+# 2. Run Repomix using the calibrated repomix.config.json
+npx --yes repomix
+
+# 3. Execute strict character audit (verifies <= 130,000 characters)
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\patches_and_tests\repomix-audit.ps1
+```
+
+---
+
+### Option B: Unified Agent Rules & Documentation Bundle
+
+When you only need to pack agent instructions, workflows, project rules, and architecture docs into a single, compact XML file without source code:
+
+```powershell
+npm run repomix:agents
+# or directly:
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\patches_and_tests\repomix-agents.ps1
+```
+
+This outputs `repomix-output.xml` containing `AGENTS.md`, `.agents/WORKFLOWS.md`, `.agents/rules/*.md`, `.agents/skills/**/*.md`, and related architectural documentation.
+
+---
+
+### Option C: Custom CLI Split Overrides
+
+To override target chunk limits on the fly:
+
+```powershell
+# Split with a specific size limit (e.g. 100kb chunks)
+npx --yes repomix --split-output 100kb --output "repomix-output/custom.txt"
+
+# Token-optimized compressed mode with splitting
+npx --yes repomix --split-output 120kb --compress --remove-comments --output "repomix-output/bundle-compressed.txt"
+```
+
+---
+
+### Option D: Custom Destination Folder & Flag Passthrough
+
+Use the repo runners when you need a named output folder instead of `repomix-output/`:
+
+```powershell
+# Named folder -> normalized to repomix_<name> and auto-ignored by .gitignore
+.\repomix.ps1 v1_release
+
+# Any additional Repomix CLI flags pass straight through
+.\repomix.ps1 my_chunk --no-security-check
+.\repomix.ps1 --no-security-check
+```
+
+Folder-name normalization applies the `repomix_` prefix automatically, so ad-hoc bundles never pollute Git status. `repomix.bat` accepts the identical arguments on CMD.
+
+---
+
+## Configuration Reference (`repomix.config.json`)
+
+The workspace configuration controls the packaging behavior:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/yamadashy/repomix/main/repomix.config.schema.json",
+  "output": {
+    "filePath": "repomix-output/bundle.txt",
+    "style": "xml",
+    "splitOutput": 120000,
+    "parsableStyle": true,
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 5
+  },
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "scripts/patches_and_tests/**",
+      "plans/**",
+      "*.zip",
+      "*bundle*.txt",
+      "repomix-output/**",
+      "repomix-output*"
+    ]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}
+```
+
+---
+
+## Verification & Audit Checklist
+
+After running the bundler, always verify:
+1. **File Count & Naming:** Check `repomix-output/` contains sequential files (`bundle.1.txt`, `bundle.2.txt`, ...).
+2. **Character Count Gate:** Confirm the audit table in the terminal outputs `[OK] <= 130k` for all chunks.
+3. **Context Integrity:** Ensure key files (such as `src/`, `server-hono.ts`, etc.) are captured without truncation.
+4. **Security Check:** Confirm no secrets, API keys, or `.env` entries were bundled.
+</file>
+
+<file path=".agents/skills/review/SKILL.md">
+---
+name: review
+description: Audit the code in context without modifying it. Triggered when the user uses the #review tag or /review command.
+---
+
+# Code Audit & Review Skill (`#review`)
+
+1. **Read-Only Contract:** Do NOT modify files during `#review`.
+2. **Rule Compliance Check:** Verify the target files against `AGENTS.md` and every matching `.agents/rules/*.md` rule.
+3. **Prioritized Findings:** Report concrete bugs, regressions, unhandled edge cases, and rule violations ordered by severity (High / Medium / Low) with exact file/line links.
+</file>
+
+<file path=".agents/skills/solve/SKILL.md">
+---
+name: solve
+description: Investigates an issue, drafts an execution plan in .tmp/solve_report.md, and delegates execution while keeping Coordinator context lean. Triggered by #solve or /solve.
+---
+
+# End-to-End Investigation & Delegated Fix (`#solve`)
+
+1. **Diagnose & Plan:** Inspect the root cause, match `.agents/rules/*.md`, and write the execution plan to `.tmp/solve_report.md`.
+2. **Delegate Execution:** Execute via `#delegate` using the 3-Tier table in `.agents/rules/multi-ide-setup.md`.
+3. **Audit & Report:** Verify via the Combo Anti-Phantom Diff Audit and `npm run lint`, then append the final verification summary to `.tmp/solve_report.md`.
+</file>
+
+<file path=".agents/skills/zip-clean/references/troubleshooting.md">
+# Troubleshooting & Edge Cases (`zip-clean`)
+
+## 1. Locked Files
+If an editor or background server has locked a file, PowerShell's `.NET ZipArchive` might raise an `IOException` (`The process cannot access the file because it is being used by another process`).
+- **Fix:** Stop active dev servers (`npm run dev`) or test runners before running `zip-clean`.
+
+## 2. Long Path Names on Windows
+Windows path limits (MAX_PATH = 260 characters) can sometimes affect deep folder structures.
+- `zip-clean.ps1` uses .NET `[System.IO.Compression.ZipFile]` which supports long paths natively when paths are normalized.
+- If you encounter a MAX_PATH issue, specify an `-OutputPath` near the drive root (e.g., `C:\temp\archive.zip`).
+
+## 3. Accidental Inclusion of the ZIP Itself
+When creating an archive inside the repository folder (e.g., `Y:\repo\archive.zip`), a naive file search might attempt to zip `archive.zip` while it is being written, causing recursion or corruption.
+- `zip-clean.ps1` automatically excludes `$resolvedOutput` by comparing absolute paths before archiving, preventing this issue.
+
+## 4. Cross-Platform ZIP Separators
+Windows standard paths use backslashes (`\`), but ZIP file specifications require entry keys to use forward slashes (`/`).
+- `zip-clean.ps1` explicitly converts relative paths to `/` when creating archive entries:
+  ```powershell
+  $entryName = $rel.Replace('\', '/')
+  ```
+  This ensures compatibility when opening the resulting archive on Linux, macOS, Android, or cloud servers.
+
+## 5. Secret Protection
+`git ls-files --exclude-standard` strictly obeys `.gitignore`, and `-AdditionalExcludes` now defaults to `@('*.zip', '*.tmp', '.env*', '*.pem', '*.key')`, so stray secrets are filtered even when a rule is missing from `.gitignore`.
+- For other secret naming schemes (e.g. `*.p12`, `*.pfx`, `id_rsa*`), append patterns: `-AdditionalExcludes @('*.zip','*.tmp','.env*','*.pem','*.key','*.p12','id_rsa*')`.
+- The exclude list is a safety net, not a replacement for ignore rules — always add the file to `.gitignore` as well.
+
+## 6. Non-Git Fallback Enumeration
+When `git ls-files` yields nothing, the script falls back to `Get-ChildItem -Recurse -File`.
+- The fallback skips `.git`, `node_modules`, `dist`, `.wrangler`, `.tmp`, and every `repomix*` directory (e.g. `repomix-output/`) before `-AdditionalExcludes` runs, so it never packages dependencies, build output, local Wrangler state, or bundler dumps. Root-level runner files (`repomix.ps1`, `repomix.bat`, `repomix.config.json`) remain packaged.
+- If a new heavy directory still appears in a fallback archive, add it to `$excludedDirs` in `zip-clean.ps1` or extend `-AdditionalExcludes`.
+</file>
+
+<file path=".agents/skills/zip-clean/scripts/zip-clean.ps1">
+<#
+.SYNOPSIS
+    Generates a clean ZIP archive of the repository excluding all .gitignore files.
+
+.DESCRIPTION
+    Uses Git and .NET ZipArchive to build a clean ZIP distribution.
+    By default, it respects .gitignore rules completely and excludes:
+    - Anything ignored by .gitignore (e.g., node_modules, dist, .cache, .env, build artifacts)
+    - The internal .git/ directory itself
+    - Any destination *.zip files (preventing recursive inclusion)
+    - Additional artifacts matched by -AdditionalExcludes (default: *.zip, *.tmp, .env*, *.pem, *.key)
+
+.PARAMETER OutputPath
+    The target ZIP file path. Defaults to <RepoRoot>/<RepoName>_v<Version>_<Timestamp>.zip.
+
+.PARAMETER Mode
+    Selection mode:
+    - 'WorkingTree' (Default): Includes tracked files + untracked non-ignored files.
+    - 'Head': Fast export of committed files at Git HEAD (via git archive or ls-tree).
+    - 'TrackedOnly': Includes git-tracked files only, using current working-tree content.
+
+.PARAMETER Prefix
+    Optional root directory name inside the ZIP archive.
+
+.PARAMETER AdditionalExcludes
+    Additional glob patterns or filenames to exclude (e.g., @('*.zip', '*.tmp', '.env*')).
+
+.PARAMETER DryRun
+    If set, lists files that would be included and outputs file counts without creating the ZIP.
+
+.PARAMETER Force
+    Overwrite output ZIP if it already exists.
+
+.EXAMPLE
+    .\zip-clean.ps1
+    Creates a timestamped zip in the repository root.
+
+.EXAMPLE
+    .\zip-clean.ps1 -OutputPath "C:\Backups\Portfolio.zip" -Force
+
+.EXAMPLE
+    .\zip-clean.ps1 -DryRun
+#>
+
+[CmdletBinding()]
+param (
+    [Parameter(Position = 0)]
+    [string]$OutputPath,
+
+    [Parameter()]
+    [ValidateSet('WorkingTree', 'Head', 'TrackedOnly')]
+    [string]$Mode = 'WorkingTree',
+
+    [Parameter()]
+    [string]$Prefix = '',
+
+    [Parameter()]
+    [string[]]$AdditionalExcludes = @('*.zip', '*.tmp', '.env*', '*.pem', '*.key'),
+
+    [Parameter()]
+    [switch]$DryRun,
+
+    [Parameter()]
+    [switch]$Force
+)
+
+Set-StrictMode -Off
+$ErrorActionPreference = 'Stop'
+
+# 1. Locate repository root
+$repoRootRaw = (git rev-parse --show-toplevel 2>$null)
+if (-not $repoRootRaw -or -not (Test-Path $repoRootRaw)) {
+    $repoRoot = (Get-Item (Get-Location).Path).FullName
+    Write-Warning "Not inside a detected git repository. Working in: $repoRoot"
+} else {
+    $repoRoot = (Get-Item $repoRootRaw).FullName
+}
+
+# 2. Extract repository name & optional version from package.json
+$repoName = Split-Path $repoRoot -Leaf
+$version = ""
+$pkgJsonPath = Join-Path $repoRoot "package.json"
+if (Test-Path $pkgJsonPath) {
+    try {
+        $pkg = Get-Content -Raw -Path $pkgJsonPath | ConvertFrom-Json
+        if ($pkg.version) {
+            $version = "v$($pkg.version)_"
+        }
+    } catch {
+        # ignore parse errors
+    }
+}
+
+# 3. Determine default OutputPath
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+if (-not $OutputPath) {
+    $zipFileName = "${repoName}_${version}${timestamp}.zip"
+    $OutputPath = Join-Path $repoRoot $zipFileName
+}
+
+$resolvedOutput = [System.IO.Path]::GetFullPath($OutputPath)
+$outputFileName = [System.IO.Path]::GetFileName($resolvedOutput)
+
+# 4. Handle existing output file
+if ((Test-Path $resolvedOutput) -and -not $Force -and -not $DryRun) {
+    throw "Target archive already exists: $resolvedOutput. Use -Force to overwrite."
+}
+
+Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host " Clean ZIP Generator (Excluding .gitignore)" -ForegroundColor Cyan
+Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host "Repository Root : $repoRoot"
+Write-Host "Archive Mode    : $Mode"
+Write-Host "Target Archive  : $resolvedOutput"
+if ($Prefix) { Write-Host "Archive Prefix  : $Prefix" }
+
+# 5. Gather file list respecting .gitignore
+Push-Location $repoRoot
+try {
+    $files = @()
+    if ($Mode -eq 'Head') {
+        # Committed files at HEAD
+        $files = git ls-tree -r --name-only HEAD 2>$null
+    } elseif ($Mode -eq 'TrackedOnly') {
+        # Tracked files (working tree state)
+        $files = git ls-files --cached 2>$null
+    } else {
+        # WorkingTree mode: tracked + untracked non-ignored files
+        $files = git ls-files --cached --others --exclude-standard 2>$null
+    }
+
+    if (-not $files -or $files.Count -eq 0) {
+        Write-Warning "No files returned by git command. Checking directory fallback..."
+        $excludedDirs = @('.git', 'node_modules', 'dist', '.wrangler', '.tmp')
+        $files = Get-ChildItem -Recurse -File | Where-Object {
+            $relative = $_.FullName.Substring($repoRoot.Length).TrimStart('\')
+            $segments = $relative -split '[\\/]'
+            $inExcludedDir = $false
+            for ($i = 0; $i -lt ($segments.Count - 1); $i++) {
+                if ($excludedDirs -contains $segments[$i] -or $segments[$i] -like 'repomix*') { $inExcludedDir = $true; break }
+            }
+            (-not $inExcludedDir)
+        } | ForEach-Object {
+            $_.FullName.Substring($repoRoot.Length).TrimStart('\')
+        }
+    }
+} finally {
+    Pop-Location
+}
+
+# 6. Filter file list
+$filteredFiles = [System.Collections.Generic.List[string]]::new()
+$totalRawBytes = 0
+
+foreach ($rel in $files) {
+    if (-not $rel) { continue }
+
+    # Normalize slashes for comparison
+    $normalizedRel = $rel.Replace('/', '\')
+    $fullPath = Join-Path $repoRoot $normalizedRel
+
+    # Check existence
+    if (-not (Test-Path $fullPath -PathType Leaf)) {
+        continue
+    }
+
+    # Exclude target output file if within repository tree
+    if ([string]::Equals($fullPath, $resolvedOutput, [System.StringComparison]::OrdinalIgnoreCase)) {
+        continue
+    }
+
+    # Exclude additional patterns
+    $fileName = [System.IO.Path]::GetFileName($fullPath)
+    $skip = $false
+    foreach ($pattern in $AdditionalExcludes) {
+        if ($fileName -like $pattern -or $normalizedRel -like $pattern) {
+            $skip = $true
+            break
+        }
+    }
+    if ($skip) { continue }
+
+    $filteredFiles.Add($rel)
+    $item = Get-Item $fullPath
+    $totalRawBytes += $item.Length
+}
+
+$rawSizeMB = [math]::Round($totalRawBytes / 1MB, 2)
+Write-Host "Matched Files   : $($filteredFiles.Count) files ($rawSizeMB MB uncompressed)" -ForegroundColor Green
+
+# 7. Dry run check
+if ($DryRun) {
+    Write-Host "`n[DRY RUN] The following files would be packaged:" -ForegroundColor Yellow
+    $displayLimit = [math]::Min($filteredFiles.Count, 25)
+    for ($i = 0; $i -lt $displayLimit; $i++) {
+        Write-Host "  + $($filteredFiles[$i])"
+    }
+    if ($filteredFiles.Count -gt 25) {
+        Write-Host "  ... and $($filteredFiles.Count - 25) more files." -ForegroundColor DarkGray
+    }
+    Write-Host "`nDry run complete. No ZIP file was created." -ForegroundColor Yellow
+    exit 0
+}
+
+# 8. Create ZIP archive using .NET ZipArchive
+$sw = [System.Diagnostics.Stopwatch]::StartNew()
+
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$parentDir = Split-Path $resolvedOutput -Parent
+if ($parentDir -and -not (Test-Path $parentDir)) {
+    New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
+}
+
+if (Test-Path $resolvedOutput) {
+    Remove-Item $resolvedOutput -Force
+}
+
+$zip = [System.IO.Compression.ZipFile]::Open($resolvedOutput, [System.IO.Compression.ZipArchiveMode]::Create)
+
+try {
+    $count = 0
+    foreach ($rel in $filteredFiles) {
+        $fullPath = Join-Path $repoRoot $rel.Replace('/', '\')
+        
+        # Zip entry paths MUST use forward slashes for universal compatibility
+        $entryName = $rel.Replace('\', '/')
+        if ($Prefix) {
+            $trimmedPrefix = $Prefix.TrimEnd('/')
+            $entryName = "$trimmedPrefix/$entryName"
+        }
+
+        # Write to archive with optimal compression
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+            $zip,
+            $fullPath,
+            $entryName,
+            [System.IO.Compression.CompressionLevel]::Optimal
+        ) | Out-Null
+
+        $count++
+        if ($count % 50 -eq 0 -or $count -eq $filteredFiles.Count) {
+            Write-Progress -Activity "Compressing clean archive" -Status "$count / $($filteredFiles.Count) files" -PercentComplete (($count / $filteredFiles.Count) * 100)
+        }
+    }
+} finally {
+    $zip.Dispose()
+    Write-Progress -Activity "Compressing clean archive" -Completed
+}
+
+$sw.Stop()
+
+# 9. Verify and output results
+if (Test-Path $resolvedOutput) {
+    $zipItem = Get-Item $resolvedOutput
+    $zipSizeMB = [math]::Round($zipItem.Length / 1MB, 2)
+    $ratio = if ($totalRawBytes -gt 0) { [math]::Round((1 - ($zipItem.Length / $totalRawBytes)) * 100, 1) } else { 0 }
+    $elapsedSec = [math]::Round($sw.Elapsed.TotalSeconds, 2)
+
+    Write-Host "`n==========================================" -ForegroundColor Green
+    Write-Host " ARCHIVE SUCCESSFULLY CREATED" -ForegroundColor Green
+    Write-Host "==========================================" -ForegroundColor Green
+    Write-Host "File:       $($zipItem.FullName)"
+    Write-Host "Size:       $zipSizeMB MB (Saved $ratio% vs $rawSizeMB MB raw)"
+    Write-Host "Files:      $count files packaged"
+    Write-Host "Duration:   $elapsedSec seconds"
+    Write-Host "==========================================" -ForegroundColor Green
+} else {
+    throw "Failed to create archive at $resolvedOutput."
+}
+</file>
+
+<file path=".agents/skills/zip-clean/SKILL.md">
+---
+name: zip-clean
+description: >-
+  Generate a clean ZIP archive of the repository or project directory, excluding all files and directories matched by .gitignore, .git metadata, and temporary files.
+  Triggered by #zip-clean, /zip-clean, #export-zip, /export-zip, #zip, /zip, or when the user asks to zip or package the project without gitignored files.
+---
+
+# Clean ZIP Generator Workflow (`#zip-clean`)
+
+**Purpose:** Package the repository or target project into a clean, distributable ZIP archive that strictly respects `.gitignore` rules, strips `.git/` version-control metadata, excludes destination `.zip` files, and prevents inclusion of build artifacts, dependencies (`node_modules`), secrets, or cache files.
+
+---
+
+## Capabilities & Modes
+
+The skill provides three modes of operation via its bundled PowerShell script `scripts/zip-clean.ps1`:
+
+| Mode | Command Flag | Inclusions | Best For |
+| :--- | :--- | :--- | :--- |
+| **`WorkingTree`** *(Default)* | `-Mode WorkingTree` | Tracked files + newly added untracked non-ignored files | Sharing current work-in-progress, backups, code handoffs with active uncommitted changes |
+| **`Head`** | `-Mode Head` | Strictly committed files at `HEAD` | Clean release packaging, tagged version snapshots |
+| **`TrackedOnly`** | `-Mode TrackedOnly` | Tracked files only (reflecting current file content) | Excluding all untracked files while preserving uncommitted edits to tracked files |
+
+---
+
+## Execution Instructions
+
+### Option 1: Automatic Agent Execution (Recommended)
+
+When the user asks to create a zip or triggers `#zip-clean`:
+
+1. **Resolve Destination Path & Naming:**
+   - Default filename: `<RepoName>_<Version>_<Timestamp>.zip` in the repository root or parent directory.
+   - If user specified a custom path (e.g., `dist/backup.zip` or desktop), resolve the absolute path.
+
+2. **Execute the Bundled Script via PowerShell:**
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -Mode WorkingTree
+   ```
+   *Custom path example:*
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -OutputPath "C:\Backups\Portfolio_Clean.zip" -Force
+   ```
+   *Dry-run example:*
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -DryRun
+   ```
+
+3. **Verify Archive Integrity:**
+   - Confirm file exists and size is greater than 0 bytes.
+   - Verify that excluded paths (`node_modules`, `.git`, `.env*`, `dist`, `.wrangler`, `.tmp`, `repomix*`) and secret artifacts (`*.pem`, `*.key`) are absent from the archive entries.
+   - Note file count, uncompressed size, compressed size, and elapsed time.
+
+4. **Deliver Concise Summary:**
+   Provide the user with:
+   - Full path to the created `.zip` file
+   - File size (in MB)
+   - Number of files packaged
+   - Compression ratio achieved
+
+---
+
+### Option 2: Quick Terminal / npm Command
+
+Users can directly run from PowerShell:
+```powershell
+npm run zip
+```
+Or with custom arguments:
+```powershell
+powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -DryRun
+powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -OutputPath "release.zip" -Mode Head -Force
+```
+
+---
+
+### Option 3: Pure Git CLI Alternative (Committed HEAD only)
+
+If running in environments without PowerShell access:
+```bash
+git archive -o "archive_HEAD.zip" HEAD
+```
+*Note: `git archive` only bundles committed files at HEAD and will omit uncommitted modifications or new untracked files.*
+
+---
+
+## Parameter Reference (`scripts/zip-clean.ps1`)
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `-OutputPath` | `string` | `<Repo>_v<Ver>_<Timestamp>.zip` | Target `.zip` path. Relative or absolute. |
+| `-Mode` | `string` | `'WorkingTree'` | Selection mode: `'WorkingTree'`, `'Head'`, or `'TrackedOnly'`. |
+| `-Prefix` | `string` | `''` | Optional root directory folder name inside the archive. |
+| `-AdditionalExcludes` | `string[]` | `@('*.zip', '*.tmp', '.env*', '*.pem', '*.key')` | Extra glob patterns to exclude from packaging. |
+| `-DryRun` | `switch` | `false` | Lists files and counts without writing any file to disk. |
+| `-Force` | `switch` | `false` | Overwrites destination `.zip` if it already exists. |
+
+> [!NOTE] **Non-Git Fallback:** When `git ls-files` returns nothing (no repository, or an empty index), the script enumerates the directory tree directly and skips `.git`, `node_modules`, `dist`, `.wrangler`, `.tmp`, and every `repomix*` directory (such as `repomix-output/`) before applying `-AdditionalExcludes`. Fallback archives therefore never include dependencies, build output, local Wrangler state, or bundler dumps.
+
+---
+
+## References
+
+- Detailed edge cases and troubleshooting: [troubleshooting.md](./references/troubleshooting.md)
+- Bundled automation script: [zip-clean.ps1](./scripts/zip-clean.ps1)
+</file>
+
+<file path=".agents/WORKFLOWS.md">
+# Global Workflow Commands
+
+When a user request begins with a command or tag, read the corresponding local skill file in addition to `AGENTS.md`:
+
+- `#ask` (or `/ask`): `.agents/skills/ask/SKILL.md`
+- `#grillme` (or `/grillme`, `#grill-me`, `/grill-me`): `.agents/skills/grillme/SKILL.md`
+- `#plan` (or `/plan`): `.agents/skills/plan/SKILL.md`
+- `#exec` (or `/exec`): `.agents/skills/exec/SKILL.md`
+- `#exec-wave` (or `/exec-wave`, `#wave-exec`, `/wave-exec`): `.agents/skills/exec-wave/SKILL.md`
+- `#flash` (or `/flash`, `#dflash`, `/dflash`): `.agents/skills/flash/SKILL.md`
+- `#review` (or `/review`): `.agents/skills/review/SKILL.md`
+- `#refactor` (or `/refactor`): `.agents/skills/refactor/SKILL.md`
+- `#delegate` (or `/delegate`, `#deligate`, `/deligate`): `.agents/skills/delegate/SKILL.md`
+- `#solve` (or `/solve`): `.agents/skills/solve/SKILL.md`
+- `#deep-refactor` (or `/deep-refactor`, `#refrag`, `/refrag`, `#oneshot`, `/oneshot`): `.agents/skills/deep-refactor/SKILL.md`
+- `#zip-clean` (or `/zip-clean`, `#export-zip`, `/export-zip`, `#zip`, `/zip`): `.agents/skills/zip-clean/SKILL.md`
+- `#repomix` (or `/repomix`): `.agents/skills/repomix/SKILL.md`
+- `#bundle` (or `/bundle`, `#repomix-split`, `/repomix-split`): `.agents/skills/repomix/SKILL.md`
+- `#fetch-skill` (or `/fetch-skill`): `.agents/skills/fetch-skill/SKILL.md`
+</file>
+
+<file path=".clinerules">
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+</file>
+
+<file path=".cursor/.cursor/rules/agents.mdc">
+---
+description: Canonical project rules for AI agents
+globs: "*"
+alwaysApply: true
+---
+
+Read and follow the repository root `AGENTS.md` before performing any task.
+
+## Global Workflow Commands
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+
+## Agent Translation (Subagent & Tier Directives)
+Follow the **Multi-IDE Host Capability Matrix (Mode D — Cursor)** in `.agents/rules/multi-ide-setup.md`.
+
+### Tool mapping
+- Abstract `invoke_subagent` → Cursor native `Task` tool (never invent `invoke_subagent`).
+- `TypeName: 'self'` (implementer) → `Task` with `subagent_type: "generalPurpose"`.
+- `TypeName: 'research'` (Red-Team / read-only auditor) → `Task` with `subagent_type: "explore"` (or an explicit read-only prompt).
+- Stream / handoff links → Cursor `[Name](agent-id)` convention (not `conversation://`).
+- Living plans and cross-IDE reports → `.tmp/` (gitignored), never IDE-internal artifact storage.
+
+### Tier behavior (no fake model slugs)
+- Do **not** pass `flash_lite`, `flash`, or `pro` as Cursor `model` values. Default `model: "inherit"`. Pass a non-`inherit` slug only when the user explicitly requested a model from the session's available subagent models list.
+- **Tier 1 (`FLASH_LITE`, Score 1–3) & Tier 2 (`FLASH`, Score 4–6):** Apply `.agents/skills/flash/SKILL.md` (Single-Action Protocol). Execute inline for a single matching `#exec N` step; otherwise spawn `Task` for isolation (`#exec all`, `#delegate`, `#solve`, multi-step plans).
+- **Tier 3 (`PRO`, Score 7–10 or files >=500 lines):** Prefer a high-reasoning parent model; spawn `Task` with `inherit` for isolation when needed; perform an explicit self-review (or `explore` auditor when Score >= 8) before staging. Preserve the global decomposition and completeness standard.
+- **Wave Execution (`#exec-wave`):** Parallel `Task` batches only when file inventories are disjoint; otherwise serial. Per-batch context isolation; consolidated validation after each wave. Enforce the 3-point completion feedback contract (`Status`, `Files Modified`, `Summary`).
+
+### Domain rules
+Before editing, Read every `.agents/rules/*.md` that matches the AGENTS.md file-to-rule table for the files you will touch.
+</file>
+
+<file path=".cursor/.cursor/rules/cloudflare-architecture.mdc">
+---
+description: Cloudflare / Hono / edge architecture domain — load canonical rule before editing
+globs: server-hono.ts,server-hono/**/*.ts,functions/**/*.ts,dev-hono.ts,wrangler.toml
+alwaysApply: false
+---
+
+Before editing matched files, Read and follow `.agents/rules/cloudflare-architecture.md` (canonical). Do not duplicate or override that policy here.
+</file>
+
+<file path=".cursor/.cursor/rules/seo-ssr-hydration.mdc">
+---
+description: SEO / Edge SSR / hydration domain — load canonical rule before editing
+globs: functions/**/*.ts,scripts/prerender.js,index.html,src/App.tsx,src/utils/projectText.ts
+alwaysApply: false
+---
+
+Before editing matched files, Read and follow `.agents/rules/seo-ssr-hydration.md` (canonical). Do not duplicate or override that policy here.
+</file>
+
+<file path=".cursor/.cursor/rules/video-audio-media.mdc">
+---
+description: Video/audio/media domain — load canonical rule before editing
+globs: src/components/video/**/*.tsx,src/hooks/video/**/*.ts,src/store/useVideoStore.ts,src/utils/bunnyPoster.ts,src/utils/videoFormatting.ts
+alwaysApply: false
+---
+
+Before editing matched files, Read and follow `.agents/rules/video-audio-media.md` (canonical). Do not duplicate or override that policy here.
+</file>
+
+<file path=".cursor/rules/agents.mdc">
+---
+description: Canonical project router and Multi-IDE Mode D capability adapter
+alwaysApply: true
+---
+
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+Before editing files, read every matching `.agents/rules/*.md` entry from the Deterministic File-to-Rule Routing table in `AGENTS.md`.
+</file>
+
+<file path=".github/workflows/ci.yml">
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'gemini-*'
+      - preview
+      - test
+  pull_request:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run media canonicalization regression test
+        run: npx tsx scripts/media-canonicalization.regression.ts
+
+      - name: Build client
+        run: npx vite build
+</file>
+
+<file path=".github/copilot-instructions.md">
+Read and follow the repository root `AGENTS.md` before performing any task.
+
+## Global Workflow Commands
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+
+
+## Agent Translation (Subagent Directives)
+When `AGENTS.md` requires a `pro` subagent, use Copilot's highest-reasoning available agent/model and preserve the required decomposition, review, and completeness standard.
+</file>
+
+<file path=".kilo/agent/flash_lite.md">
+---
+description: Handles isolated, mechanical configuration, copy, and small typing tasks.
+mode: subagent
+model: deepseek/deepseek-flash
+variant: low
+steps: 25
+permission:
+  edit:
+    ".git/**": deny
+    "functions/**": deny
+    "dist/**": deny
+---
+
+Execute the assigned, narrowly scoped task. Preserve existing behavior and report modified files and validation.
+
+Return the standardized 3-point completion feedback: "Status: SUCCESS | FAILED | BLOCKED", "Files Modified: <list of paths>", "Summary: <1-2 sentences>".
+
+Never run `git commit` and never change the version number in `package.json`; version ownership belongs solely to the Coordinator.
+</file>
+
+<file path=".kilo/agent/flash.md">
+---
+description: Handles well-bounded implementation tasks with clear interfaces.
+mode: subagent
+model: deepseek/deepseek-flash
+steps: 30
+permission:
+  edit:
+    ".git/**": deny
+    "functions/**": deny
+    "dist/**": deny
+---
+
+Implement the assigned scoped task precisely. Follow repository instructions, preserve existing behavior, and report modified files and validation.
+
+Return the standardized 3-point completion feedback: "Status: SUCCESS | FAILED | BLOCKED", "Files Modified: <list of paths>", "Summary: <1-2 sentences>".
+
+Never run `git commit` and never change the version number in `package.json`; version ownership belongs solely to the Coordinator.
+</file>
+
+<file path=".kilo/agent/pro.md">
+---
+description: Produces implementation plans and architecture analysis without modifying source files.
+mode: subagent
+model: deepseek/deepseek-v4-pro
+variant: high
+steps: 30
+permission:
+  edit:
+    "plans/**": allow
+    "*": deny
+  bash: deny
+  task: deny
+---
+
+Produce an implementation plan for the assigned task. Analyze the relevant files, dependencies, and risks first; do not modify source files.
+
+Write plans only under `plans/**`. Never edit application, server, or configuration files.
+
+Return the compact plan report: "Status: READY | BLOCKED", "Plan: <ordered steps with file paths>", "Risks: <concise bullets>", "Validation: <commands to run>".
+</file>
+
+<file path=".kilo/agent/research.md">
+---
+description: Performs read-only research and audits without modifying files.
+mode: subagent
+model: deepseek/deepseek-v4-pro
+variant: high
+steps: 15
+permission:
+  edit: deny
+  bash: deny
+  task: deny
+  todowrite: deny
+---
+
+Perform read-only research or auditing for the assigned task. Do not modify files.
+
+Report concise findings with file paths and line references.
+
+Return the compact 2-point audit report: "Verdict: PASS | FAIL", "Findings: <compact bullet list with file paths and line numbers>".
+</file>
+
+<file path=".trae/rules/project_rules.md">
+Read and follow the repository root `AGENTS.md` before performing any task. For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+
+## Agent Translation (Subagent Directives)
+When `AGENTS.md` requires a `pro` subagent, use Trae's highest-reasoning builder or agent mode and preserve the required decomposition and completeness standard.
+</file>
+
+<file path=".windsurfrules">
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands (e.g. `#ask`, `#plan`, `#exec`, `#review`, `#refactor`, `#solve`), refer to `.agents/WORKFLOWS.md`.
+</file>
+
+<file path="AGENTS.md">
+# Engineering and Assistant Instructions (NewProject)
+
+These repository instructions are the authoritative project contract. Project-specific behavior and architecture rules take precedence over general coding preferences. When two rules appear to conflict, preserve the established application behavior and apply the more narrowly scoped rule.
+
+> [!IMPORTANT] IDE / COPILOT ROUTING INSTRUCTIONS (PROGRESSIVE DISCLOSURE)
+> To keep the context window lean, domain rules and workflow instructions are NOT preloaded into every turn.
+> 1. **Before writing or modifying code**, match the files you will touch against the routing table below and read every matching `.agents/rules/*.md` file.
+> 2. **When a user prompt contains a workflow tag** (e.g. `#ask`, `#grillme`, `#plan`, `#exec`, `#review`, `#refactor`, `#solve`), read `.agents/WORKFLOWS.md` and only the corresponding skill file.
+
+## Deterministic File-to-Rule Routing
+
+Deep-dive rules live in `.agents/rules/`. Before editing, match the files you will touch and read every rule that applies:
+
+| Files / Directories | Rule |
+| --- | --- |
+| `src/**/*.tsx`, `src/**/*.css`, Tailwind classes | `.agents/rules/styling-ui.md` |
+| `src/store/**`, `src/hooks/**`, `src/services/**` | `.agents/rules/core-react-state.md` |
+| `server/**`, `functions/**`, `wrangler.toml` | `.agents/rules/backend-edge.md` |
+| `src/components/**`, `src/hooks/**`, `src/config/siteConfig.ts`, `.agents/rules/*.md` | `.agents/rules/boilerplate-standards.md` |
+| `AGENTS.md`, `.agents/**/*.md` | `.agents/rules/multi-ide-setup.md` |
+
+## Host Environment
+
+- **OS/Shell:** Windows 11 (x64) with PowerShell 5.1+; backslash path separator; never assume POSIX paths.
+- **Forbidden Unix-only tools:** `sed`, `awk`, `grep` (use `Select-String`), `chmod`, `touch`, `cat` (`Get-Content`), `rm` (`Remove-Item`), `cp` (`Copy-Item`), `mv` (`Move-Item`). Prefer PowerShell cmdlets or built-in agent file tools.
+- **Line endings:** CRLF is the default; do not force LF-only endings unless `.gitattributes` requires it.
+
+## Code Quality & Modularity Limits
+
+- Apply KISS, practical DRY, and SRP. Use descriptive English identifiers; comments explain *why*, not *what*.
+- **File Size & Refactoring Limits:**
+  - **300â€“499 lines (Warning):** Warn the user and propose a decomposition (candidate subcomponents, custom hooks, or utility extractions).
+  - **500+ lines (Mandatory Decomposition):** Refactor into modular subcomponents (`src/components/`), custom hooks (`src/hooks/`), Zustand stores (`src/store/`), and pure utilities (`src/utils/`), delegating complex decompositions to a `pro` subagent where supported.
+- Produce complete, production-ready implementations. Never replace required logic with placeholders such as `// ...`.
+- **Version Bumping:** On every checkpoint commit at plan completion, the Coordinator agent increments the patch version in `package.json` (+0.0.1). Subagents are strictly forbidden from modifying `package.json` versions.
+- **Script Organization:** Place one-off utility scripts, automated patches, and test scripts in `scripts/patches_and_tests/`. Keep the root repository clean.
+
+## Decision Gate & Interaction Contract
+
+- **Default is action, not a question:** Report progress and pending state as factual statements rather than asking routine confirmation questions.
+- **Single-Question Rule:** Ask at most ONE open question per turn. If multiple decisions are pending, bundle them into a single structured query, or run `#grillme` before editing.
+- **Hard Stops â€” Always ask:**
+  - Actions that leave the local working tree or are irreversible without user prompting: AI-initiated `git push`, pushing to `main`/`production`, deploying to production, git history rewrites, starting persistent background daemons, or deleting user data.
+  - Genuine validation failures that survive agreed repair attempts.
+
+## Brand & Configuration SSOT
+
+- **Zero-Hardcoding Contract:** Hardcoded brand names, email addresses, social links, or CDN URLs are forbidden in UI components or server routes. Consume all brand and environment metadata dynamically from `src/config/siteConfig.ts` (`SITE_CONFIG`).
+
+## Canonical Verification Command Matrix
+
+Run the smallest command that covers the change; escalate to the full suite only when targeted checks fail.
+
+| Scope | Command | Gate |
+| --- | --- | --- |
+| Types + ESLint (always) | `npm run lint` | exit `0` |
+| Formatting | `npm run format` | clean diff |
+| Unit tests | `npm test` | exit `0` |
+</file>
+
+<file path="CLAUDE.md">
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands (e.g. `#ask`, `#plan`, `#exec`, `#review`, `#refactor`, `#solve`), refer to `.agents/WORKFLOWS.md`.
+</file>
+
+<file path="GEMINI.md">
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands (e.g. `#ask`, `#plan`, `#exec`, `#review`, `#refactor`, `#solve`), refer to `.agents/WORKFLOWS.md`.
+</file>
+
+<file path="howto.info">
+================================================================================
+HOWTO: NEUES PROJEKT MIT PROGRESSIVE-DISCLOSURE AGENT-ARCHITEKTUR AUSSTATTEN
+================================================================================
+
+Dieses Verzeichnis enthält das vollständige, portable Governance- und Skill-Harness-
+System für autonome AI-Coding-Assistenten mit integriertem Multi-IDE-Support.
+
+KERNEIGENSCHAFTEN:
+1. "Progressive Disclosure" (Token-schonendes Lazy Loading):
+   - AGENTS.md bleibt schlank (< 150 Zeilen) und wird pro Turn geladen.
+   - Unterregeln (.agents/rules/*.md) und Workflow-Skills (.agents/skills/*) werden
+     NICHT permanent im Prompt mitgeschickt, sondern bedarfsgesteuert via
+     File-to-Rule Routing oder #commands nachgeladen.
+
+2. Umfassendes Multi-IDE Setup (Single Source of Truth):
+   - Unterstützt 8+ AI-IDEs und CLI-Agenten gleichzeitig ohne Konfigurations-Chaos.
+   - Alle IDE-Adapter verweisen auf AGENTS.md als autoritative Quelle.
+
+
+--------------------------------------------------------------------------------
+1. UNTERSTÜTZTE IDE-ADAPTER & HOST CAPABILITY MODES
+--------------------------------------------------------------------------------
+
+Alle Adapter sind im Template bereits fertig vorkonfiguriert:
+
+| IDE / CLI-Agent       | Adapter-Datei                  | Host Capability Mode |
+| :-------------------- | :----------------------------- | :------------------- |
+| **Antigravity**       | AGENTS.md + .agents/           | **Mode A** (Native Multi-Model Subagents: flash_lite, flash, pro) |
+| **Kilo Code v7**      | kilo.jsonc + .kilo/            | **Mode A** (OpenCode-kompatibel, native Agent-Mappings) |
+| **Claude Code (CLI)** | CLAUDE.md                      | **Mode B** (Inherited Model, clean Coordinator context) |
+| **Kimi Code**         | KIMI.md                        | **Mode B** (3-RPM-Pacing, Sequential Queue, Anti-429) |
+| **Cline / Roo Code**  | .clinerules                    | **Mode C** (Single-Agent, Sequential Micro-Batches) |
+| **Windsurf**          | .windsurfrules                 | **Mode C** (Cascade Agent, Single-Action Protocol) |
+| **Cursor**            | .cursor/rules/agents.mdc       | **Mode D** (Native Task-Subagents: generalPurpose / explore) |
+| **Trae**              | .trae/rules/project_rules.md   | Trae Builder / Agent Integration |
+| **GitHub Copilot**    | .github/copilot-instructions.md| Copilot Chat / Workspace Integration |
+
+Details zur Modell-Tier-Steuerung und den Modi A–D findest du in:
+  .agents/rules/multi-ide-setup.md
+
+
+--------------------------------------------------------------------------------
+2. SCHNELLSTART: NEUES PROJEKT AUSSTATTEN
+--------------------------------------------------------------------------------
+
+OPTION A — Automatisiert per PowerShell-Skript (Empfohlen):
+----------------------------------------------------------
+Führe das beiliegende Skript aus und übergib den Pfad deines Zielprojekts:
+
+  # 1. Trockenlauf (zeigt geplante Dateien ohne Änderungen):
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemNeuenProjekt" -ProjectName "MeinProjektName" -DryRun
+
+  # 2. Ausführen:
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemNeuenProjekt" -ProjectName "MeinProjektName"
+
+
+OPTION B — Manuelles Kopieren (Drop-In):
+----------------------------------------
+Kopiere einfach alle Dateien und Ordner dieses Verzeichnisses (ohne diese howto.info)
+in das Root-Verzeichnis deines Zielprojekts:
+
+  powershell -Command "Copy-Item -Path '.\*' -Destination 'C:\Pfad\Zu\DeinemNeuenProjekt' -Recurse -Force -Exclude 'howto.info'"
+
+
+--------------------------------------------------------------------------------
+3. ÜBERSICHT DER DATEISTRUKTUR
+--------------------------------------------------------------------------------
+
+[Root]
+ │
+ ├── AGENTS.md                  <-- LAYER 1: Zentraler Router & Projektvertrag.
+ │                                  Host-Regeln (Windows/PowerShell/CRLF), 300/500-
+ │                                  Zeilen-Limits, Decision Gates, Routing Table.
+ │
+ ├── IDE-ADAPTER (LAYER 0):
+ │   ├── .cursor/rules/agents.mdc   (Cursor Mode D Adapter)
+ │   ├── .trae/rules/project_rules.md (Trae Adapter)
+ │   ├── .github/copilot-instructions.md (Copilot Adapter)
+ │   ├── .clinerules                (Cline Adapter)
+ │   ├── .windsurfrules             (Windsurf Adapter)
+ │   ├── CLAUDE.md                  (Claude Code Adapter)
+ │   ├── GEMINI.md                  (Gemini Adapter)
+ │   ├── KIMI.md                    (Kimi Code Adapter mit 3-RPM Throttling)
+ │   ├── kilo.jsonc & .kilo/        (Kilo Code v7 Multi-Agent Config)
+ │
+ └── .agents/
+      │
+      ├── WORKFLOWS.md          <-- LAYER 2A: Index aller 14 #tags und /commands.
+      │
+      ├── rules/                <-- LAYER 2B: Domänenspezifische Tiefenregeln.
+      │    ├── multi-ide-setup.md       (SSOT für Multi-IDE Modi A-D & Anti-Phantom Diff)
+      │    ├── styling-ui.md            (CSS, Tailwind, Animationen, Responsive)
+      │    ├── core-react-state.md      (Zustand Stores, Custom Hooks, API Services)
+      │    ├── backend-edge.md          (Server, Edge Functions, Hono/Workers)
+      │    └── boilerplate-standards.md (Meta-Regeln für Regeln & Scaffolding)
+      │
+      └── skills/               <-- LAYER 2C: Ausführbare Workflow-Fähigkeiten.
+           ├── ask/             (#ask: Reines Lesen & Analysieren ohne Edit)
+           ├── grillme/         (#grillme: Strukturiertes Anforderungs-Interview)
+           ├── plan/            (#plan: Kontext-Scan & Phasenplan mit 1-10 Scores)
+           ├── exec/            (#exec: Schrittweise Umsetzung & Validierung)
+           ├── exec-wave/       (#exec-wave: Parallele & sequentielle Subagent-Wellen)
+           ├── flash/           (#flash: Micro-Batches & Single-Action Protokoll)
+           ├── review/          (#review: Read-only Code-Audit auf Bugs & Gates)
+           ├── refactor/        (#refactor: 100% verhaltensneutrale Refactorings)
+           ├── deep-refactor/   (#deep-refactor: Dekomposition von 500+ Zeilen Files)
+           ├── delegate/        (#delegate: Kontext-Isolation via Subagenten)
+           ├── solve/           (#solve: Problem-Diagnose + delegierter Fix in .tmp/)
+           ├── zip-clean/       (#zip-clean: Sauberes Projektarchiv ohne .git/temp)
+           ├── repomix/         (#repomix / #bundle: Kontext-Splitting für LLMs)
+           └── fetch-skill/     (#fetch-skill: Externe Skills importieren)
+
+
+--------------------------------------------------------------------------------
+4. ANPASSUNGS-CHECKLISTE FÜR DEIN NEUES PROJEKT
+--------------------------------------------------------------------------------
+
+Nach dem Kopieren in ein neues Projekt passe in wenigen Minuten Folgendes an:
+
+[ ] 1. AGENTS.md:
+       - Überschrift & Host-Abschnitt anpassen (falls Linux/macOS statt Windows).
+       - Routing-Tabelle ("Deterministic File-to-Rule Routing") an deine
+         Verzeichnisstruktur anpassen (z.B. src/modules/** statt src/components/**).
+       - Verifikations-Befehle prüfen: npm run lint / npm test / cargo test etc.
+
+[ ] 2. .agents/rules/*.md:
+       - Domänenregeln an deinen Tech-Stack anpassen.
+       - WICHTIG: Jede Regeldatei MUSS mit dem YAML-Frontmatter beginnen:
+         ---
+         trigger: model_decision
+         globs: "dein/pfad/**/*.ts"
+         description: "Apply this when working on <Thema>."
+         ---
+
+[ ] 3. package.json:
+       Standard-Skripte für Lint, Format und Test einrichten.
+
+
+--------------------------------------------------------------------------------
+5. ARBEITEN MIT DEN WORKFLOW-TAGS
+--------------------------------------------------------------------------------
+
+- Vor unklaren Features:
+    > "#grillme Ich möchte Feature X einbauen."
+- Vor der Implementierung:
+    > "#plan Erstelle einen Umsetzungsplan für Feature X."
+- Zur schrittweisen Ausführung:
+    > "#exec all" oder "#exec-wave"
+- Für Qualitäts- und Sicherheitsprüfungen:
+    > "#review Prüfe die geänderten Dateien auf Regressionen."
+
+================================================================================
+</file>
+
+<file path="kilo.jsonc">
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "instructions": [".agents/WORKFLOWS.md"]
+}
+</file>
+
+<file path="KIMI.md">
+# Kimi Code Instructions
+
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+
+## Kimi Capability Translation
+
+### `pro` subagent
+
+When a rule requires a `pro` subagent, use the Kimi Code `Agent` tool with `subagent_type="coder"`. Supply the exact file paths, dependency list, and safeguards so its output meets the global decomposition and completeness standard.
+
+### `flash` mode / `#flash`
+
+When a rule references `flash` or `#flash`, read and apply `.agents/skills/flash/SKILL.md`.
+
+### `#grillme` interview
+
+When a rule requires `#grillme`, read `.agents/skills/grillme/SKILL.md` and resolve the relevant ambiguity before editing.
+
+## Rate Limits & Paced Execution (3 RPM)
+
+Kimi Code operates under a strict limit of **3 Requests Per Minute (RPM)**. All tool calls, model inferences, and subagent spawns count against this quota.
+
+To prevent `429 Too Many Requests`:
+1. **Pacing Throttle:** Enforce a minimum pause of **25 seconds** between state-changing steps, subagent invocations, and build/validation commands.
+2. **Strict Sequential Execution (Concurrency = 1):** Never spawn subagents in parallel. All tasks, delegations, and subagent runs must execute strictly **one at a time**.
+3. **Rate-Limit Backoff:** Upon receiving a `429`, immediately pause execution for **40 seconds** before attempting the next request.
+
+## Workflows: Deep Refactor & Multiagent Translation
+
+When executing `#deep-refactor`, `#refactor`, or any workflow that normally uses a concurrent "Scatter-Gather" pattern:
+
+1. **Disable Scatter-Gather:** Replace parallel subagent calls with a **Sequential Queue**:
+   - The Coordinator writes individual step plans as usual.
+   - Subagents are invoked **one by one**: invoke Subagent 1 → wait for completion → pause 25s → invoke Subagent 2.
+2. **Prefer Single-Agent Execution When Feasible:** If file extractions are small or closely coupled, the Main Agent should perform the sequential refactoring steps directly rather than delegating to multiple subagents, drastically conserving RPM quota.
+3. **Mega-File Pipeline:** For large files, follow the sequential pipeline (State → Hooks → UI components → Cutover), completing each phase sequentially and running validation only after each full phase rather than after every file change.
+4. **Validation Pacing:** Allow the compiler and file system to settle; pause 25 seconds after the last file edit before running `tsc` or `npm run build`.
+
+## Tooling Notes for This Environment
+
+Kimi Code on this machine runs through Git Bash. The project’s `AGENTS.md` recommends PowerShell-native cmdlets for manual use, but Kimi Code’s file tools (`Read`, `Edit`, `Write`, `Glob`, `Grep`) and Bash tool are the preferred way to interact with the repository from this agent. Prefer the dedicated file tools over raw shell commands for file operations; use Bash only for shell semantics (npm, git, build runners) and observe the single-action protocol.
+</file>
+
+</files>

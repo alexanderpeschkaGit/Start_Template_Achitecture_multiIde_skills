@@ -1,0 +1,7 @@
+---
+description: Cloudflare / Hono / edge architecture domain — load canonical rule before editing
+globs: server-hono.ts,server-hono/**/*.ts,functions/**/*.ts,dev-hono.ts,wrangler.toml
+alwaysApply: false
+---
+
+Before editing matched files, Read and follow `.agents/rules/cloudflare-architecture.md` (canonical). Do not duplicate or override that policy here.

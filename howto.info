@@ -1,0 +1,152 @@
+================================================================================
+HOWTO: NEUES PROJEKT MIT PROGRESSIVE-DISCLOSURE AGENT-ARCHITEKTUR AUSSTATTEN
+================================================================================
+
+Dieses Verzeichnis enthält das vollständige, portable Governance- und Skill-Harness-
+System für autonome AI-Coding-Assistenten mit integriertem Multi-IDE-Support.
+
+KERNEIGENSCHAFTEN:
+1. "Progressive Disclosure" (Token-schonendes Lazy Loading):
+   - AGENTS.md bleibt schlank (< 150 Zeilen) und wird pro Turn geladen.
+   - Unterregeln (.agents/rules/*.md) und Workflow-Skills (.agents/skills/*) werden
+     NICHT permanent im Prompt mitgeschickt, sondern bedarfsgesteuert via
+     File-to-Rule Routing oder #commands nachgeladen.
+
+2. Umfassendes Multi-IDE Setup (Single Source of Truth):
+   - Unterstützt 8+ AI-IDEs und CLI-Agenten gleichzeitig ohne Konfigurations-Chaos.
+   - Alle IDE-Adapter verweisen auf AGENTS.md als autoritative Quelle.
+
+
+--------------------------------------------------------------------------------
+1. UNTERSTÜTZTE IDE-ADAPTER & HOST CAPABILITY MODES
+--------------------------------------------------------------------------------
+
+Alle Adapter sind im Template bereits fertig vorkonfiguriert:
+
+| IDE / CLI-Agent       | Adapter-Datei                  | Host Capability Mode |
+| :-------------------- | :----------------------------- | :------------------- |
+| **Antigravity**       | AGENTS.md + .agents/           | **Mode A** (Native Multi-Model Subagents: flash_lite, flash, pro) |
+| **Kilo Code v7**      | kilo.jsonc + .kilo/            | **Mode A** (OpenCode-kompatibel, native Agent-Mappings) |
+| **Claude Code (CLI)** | CLAUDE.md                      | **Mode B** (Inherited Model, clean Coordinator context) |
+| **Kimi Code**         | KIMI.md                        | **Mode B** (3-RPM-Pacing, Sequential Queue, Anti-429) |
+| **Cline / Roo Code**  | .clinerules                    | **Mode C** (Single-Agent, Sequential Micro-Batches) |
+| **Windsurf**          | .windsurfrules                 | **Mode C** (Cascade Agent, Single-Action Protocol) |
+| **Cursor**            | .cursor/rules/agents.mdc       | **Mode D** (Native Task-Subagents: generalPurpose / explore) |
+| **Trae**              | .trae/rules/project_rules.md   | Trae Builder / Agent Integration |
+| **GitHub Copilot**    | .github/copilot-instructions.md| Copilot Chat / Workspace Integration |
+
+Details zur Modell-Tier-Steuerung und den Modi A–D findest du in:
+  .agents/rules/multi-ide-setup.md
+
+
+--------------------------------------------------------------------------------
+2. SCHNELLSTART: NEUES PROJEKT AUSSTATTEN
+--------------------------------------------------------------------------------
+
+OPTION A — Automatisiert per PowerShell-Skript (Empfohlen):
+----------------------------------------------------------
+Führe das beiliegende Skript aus und übergib den Pfad deines Zielprojekts:
+
+  # 1. Trockenlauf (zeigt geplante Dateien ohne Änderungen):
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemNeuenProjekt" -ProjectName "MeinProjektName" -DryRun
+
+  # 2. Ausführen:
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemNeuenProjekt" -ProjectName "MeinProjektName"
+
+
+OPTION B — Manuelles Kopieren (Drop-In):
+----------------------------------------
+Kopiere einfach alle Dateien und Ordner dieses Verzeichnisses (ohne diese howto.info)
+in das Root-Verzeichnis deines Zielprojekts:
+
+  powershell -Command "Copy-Item -Path '.\*' -Destination 'C:\Pfad\Zu\DeinemNeuenProjekt' -Recurse -Force -Exclude 'howto.info'"
+
+
+--------------------------------------------------------------------------------
+3. ÜBERSICHT DER DATEISTRUKTUR
+--------------------------------------------------------------------------------
+
+[Root]
+ │
+ ├── AGENTS.md                  <-- LAYER 1: Zentraler Router & Projektvertrag.
+ │                                  Host-Regeln (Windows/PowerShell/CRLF), 300/500-
+ │                                  Zeilen-Limits, Decision Gates, Routing Table.
+ │
+ ├── IDE-ADAPTER (LAYER 0):
+ │   ├── .cursor/rules/agents.mdc   (Cursor Mode D Adapter)
+ │   ├── .trae/rules/project_rules.md (Trae Adapter)
+ │   ├── .github/copilot-instructions.md (Copilot Adapter)
+ │   ├── .clinerules                (Cline Adapter)
+ │   ├── .windsurfrules             (Windsurf Adapter)
+ │   ├── CLAUDE.md                  (Claude Code Adapter)
+ │   ├── GEMINI.md                  (Gemini Adapter)
+ │   ├── KIMI.md                    (Kimi Code Adapter mit 3-RPM Throttling)
+ │   ├── kilo.jsonc & .kilo/        (Kilo Code v7 Multi-Agent Config)
+ │
+ └── .agents/
+      │
+      ├── WORKFLOWS.md          <-- LAYER 2A: Index aller 14 #tags und /commands.
+      │
+      ├── rules/                <-- LAYER 2B: Domänenspezifische Tiefenregeln.
+      │    ├── multi-ide-setup.md       (SSOT für Multi-IDE Modi A-D & Anti-Phantom Diff)
+      │    ├── styling-ui.md            (CSS, Tailwind, Animationen, Responsive)
+      │    ├── core-react-state.md      (Zustand Stores, Custom Hooks, API Services)
+      │    ├── backend-edge.md          (Server, Edge Functions, Hono/Workers)
+      │    └── boilerplate-standards.md (Meta-Regeln für Regeln & Scaffolding)
+      │
+      └── skills/               <-- LAYER 2C: Ausführbare Workflow-Fähigkeiten.
+           ├── ask/             (#ask: Reines Lesen & Analysieren ohne Edit)
+           ├── grillme/         (#grillme: Strukturiertes Anforderungs-Interview)
+           ├── plan/            (#plan: Kontext-Scan & Phasenplan mit 1-10 Scores)
+           ├── exec/            (#exec: Schrittweise Umsetzung & Validierung)
+           ├── exec-wave/       (#exec-wave: Parallele & sequentielle Subagent-Wellen)
+           ├── flash/           (#flash: Micro-Batches & Single-Action Protokoll)
+           ├── review/          (#review: Read-only Code-Audit auf Bugs & Gates)
+           ├── refactor/        (#refactor: 100% verhaltensneutrale Refactorings)
+           ├── deep-refactor/   (#deep-refactor: Dekomposition von 500+ Zeilen Files)
+           ├── delegate/        (#delegate: Kontext-Isolation via Subagenten)
+           ├── solve/           (#solve: Problem-Diagnose + delegierter Fix in .tmp/)
+           ├── zip-clean/       (#zip-clean: Sauberes Projektarchiv ohne .git/temp)
+           ├── repomix/         (#repomix / #bundle: Kontext-Splitting für LLMs)
+           └── fetch-skill/     (#fetch-skill: Externe Skills importieren)
+
+
+--------------------------------------------------------------------------------
+4. ANPASSUNGS-CHECKLISTE FÜR DEIN NEUES PROJEKT
+--------------------------------------------------------------------------------
+
+Nach dem Kopieren in ein neues Projekt passe in wenigen Minuten Folgendes an:
+
+[ ] 1. AGENTS.md:
+       - Überschrift & Host-Abschnitt anpassen (falls Linux/macOS statt Windows).
+       - Routing-Tabelle ("Deterministic File-to-Rule Routing") an deine
+         Verzeichnisstruktur anpassen (z.B. src/modules/** statt src/components/**).
+       - Verifikations-Befehle prüfen: npm run lint / npm test / cargo test etc.
+
+[ ] 2. .agents/rules/*.md:
+       - Domänenregeln an deinen Tech-Stack anpassen.
+       - WICHTIG: Jede Regeldatei MUSS mit dem YAML-Frontmatter beginnen:
+         ---
+         trigger: model_decision
+         globs: "dein/pfad/**/*.ts"
+         description: "Apply this when working on <Thema>."
+         ---
+
+[ ] 3. package.json:
+       Standard-Skripte für Lint, Format und Test einrichten.
+
+
+--------------------------------------------------------------------------------
+5. ARBEITEN MIT DEN WORKFLOW-TAGS
+--------------------------------------------------------------------------------
+
+- Vor unklaren Features:
+    > "#grillme Ich möchte Feature X einbauen."
+- Vor der Implementierung:
+    > "#plan Erstelle einen Umsetzungsplan für Feature X."
+- Zur schrittweisen Ausführung:
+    > "#exec all" oder "#exec-wave"
+- Für Qualitäts- und Sicherheitsprüfungen:
+    > "#review Prüfe die geänderten Dateien auf Regressionen."
+
+================================================================================

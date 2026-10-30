@@ -1,0 +1,8 @@
+---
+description: Canonical project router and Multi-IDE Mode D capability adapter
+alwaysApply: true
+---
+
+This repository uses `AGENTS.md` in the repository root as the canonical instruction file. Read and follow it before performing any task.
+For workflow commands, read `.agents/WORKFLOWS.md` and then the referenced repository-local skill.
+Before editing files, read every matching `.agents/rules/*.md` entry from the Deterministic File-to-Rule Routing table in `AGENTS.md`.
