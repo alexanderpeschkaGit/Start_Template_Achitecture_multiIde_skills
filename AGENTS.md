@@ -13,11 +13,13 @@ Deep-dive rules live in `.agents/rules/`. Before editing, match the files you wi
 
 | Files / Directories | Rule |
 | --- | --- |
-| `src/**/*.tsx`, `src/**/*.css`, Tailwind classes | `.agents/rules/styling-ui.md` |
+| `src/**/*.{tsx,css}` | `.agents/rules/styling-ui.md` |
 | `src/store/**`, `src/hooks/**`, `src/services/**` | `.agents/rules/core-react-state.md` |
+| `src/utils/**`, `src/**/*.ts` | `.agents/rules/core-react-state.md` |
 | `server/**`, `functions/**`, `wrangler.toml` | `.agents/rules/backend-edge.md` |
 | `src/components/**`, `src/hooks/**`, `src/config/siteConfig.ts`, `.agents/rules/*.md` | `.agents/rules/boilerplate-standards.md` |
 | `AGENTS.md`, `.agents/**/*.md` | `.agents/rules/multi-ide-setup.md` |
+| `CLAUDE.md`, `GEMINI.md`, `KIMI.md`, `.clinerules`, `.windsurfrules`, `.cursor/rules/**`, `.trae/rules/**`, `.github/copilot-instructions.md`, `kilo.jsonc`, `.kilo/agent/**` | `.agents/rules/multi-ide-setup.md` |
 
 ## Host Environment
 
@@ -29,17 +31,18 @@ Deep-dive rules live in `.agents/rules/`. Before editing, match the files you wi
 
 - Apply KISS, practical DRY, and SRP. Use descriptive English identifiers; comments explain *why*, not *what*.
 - **File Size & Refactoring Limits:**
-  - **300â€“499 lines (Warning):** Warn the user and propose a decomposition (candidate subcomponents, custom hooks, or utility extractions).
+  - **300–499 lines (Warning):** Warn the user and propose a decomposition (candidate subcomponents, custom hooks, or utility extractions).
   - **500+ lines (Mandatory Decomposition):** Refactor into modular subcomponents (`src/components/`), custom hooks (`src/hooks/`), Zustand stores (`src/store/`), and pure utilities (`src/utils/`), delegating complex decompositions to a `pro` subagent where supported.
 - Produce complete, production-ready implementations. Never replace required logic with placeholders such as `// ...`.
-- **Version Bumping:** On every checkpoint commit at plan completion, the Coordinator agent increments the patch version in `package.json` (+0.0.1). Subagents are strictly forbidden from modifying `package.json` versions.
+- **Version Bumping:** Bump the patch version once per completed plan, in the final checkpoint commit. (Coordinator only; skipped when no package.json exists).
 - **Script Organization:** Place one-off utility scripts, automated patches, and test scripts in `scripts/patches_and_tests/`. Keep the root repository clean.
 
 ## Decision Gate & Interaction Contract
 
 - **Default is action, not a question:** Report progress and pending state as factual statements rather than asking routine confirmation questions.
 - **Single-Question Rule:** Ask at most ONE open question per turn. If multiple decisions are pending, bundle them into a single structured query, or run `#grillme` before editing.
-- **Hard Stops â€” Always ask:**
+- **Branch & Git Policy:** Checkpoint commits go to the active development branch (default `preview` or `feature/*` / `task/*`; never `main` / `master`).
+- **Hard Stops — Always ask:**
   - Actions that leave the local working tree or are irreversible without user prompting: AI-initiated `git push`, pushing to `main`/`production`, deploying to production, git history rewrites, starting persistent background daemons, or deleting user data.
   - Genuine validation failures that survive agreed repair attempts.
 

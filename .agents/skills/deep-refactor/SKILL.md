@@ -18,7 +18,7 @@ description: >-
 ### Mode A: Interactive Batch Mode _(Default when exploring & refactoring live)_
 
 - **Limit:** Maximum **3 implementation files** per batch (test files `*.test.ts` and docs `*.md` do not count toward the limit).
-- **Validation per Batch:** Run `npm run lint` and `npm test` after each batch and create a checkpoint commit on `preview`.
+- **Validation per Batch:** Run `npm run lint` and `npm test` after each batch and create a checkpoint commit on the active development branch per `AGENTS.md` branch policy.
 - **Handoff Checkpoint:** Pause after Batch 3 to offer a concise session-handoff summary unless Auto-Pilot is active.
 - **Recommended Model:** `PRO` or `Flash (High Thinking)`.
 
@@ -34,14 +34,14 @@ description: >-
 
 1. **100% Behavior & Export Parity:**
    - Preserve all public props, named/default exports, and re-exported types so parent callers require zero changes unless explicitly in scope.
-   - Preserve all DOM querySelector classes (e.g., `.zoom-media-container`, `.media-zoom-target`, `[data-video-controls]`), inline math (letterbox/pillarbox geometry), event capture order (`onPointerDownCapture` vs `onClickCapture`), and platform keys (`ios-stable-video`).
+   - Preserve all DOM querySelector classes (e.g., `.modal-dialog-container`, `high-frequency-canvas`), inline math, event capture order (`onPointerDownCapture` vs `onClickCapture`), and platform keys.
    - Keep `useEffect`, `useMemo`, and `useCallback` dependency arrays semantically identical.
 2. **Dirty Working Tree Protection:**
    - Run `git status --short` in Preflight (B0).
    - Never stage, revert, format, or overwrite pre-existing modified or untracked user files.
    - Never use `git add .`, `git reset`, `git checkout`, or `git clean`. Always stage explicit file paths.
 3. **Branch & Remote Safety:**
-   - Commit only on `preview` or a dedicated feature branch (`never` on `main`/`master`).
+   - Commit only on the active development branch per `AGENTS.md` branch policy (`never` on `main`/`master`).
    - Never run `git push` automatically.
 
 ---
@@ -52,5 +52,5 @@ description: >-
 2. **Phase 1 (Pure Utils & Types):** Extract `*.types.ts` and pure helper functions (`*Utils.ts`) + optional unit test (`*Utils.test.ts`).
 3. **Phase 2 (Custom Hooks):** Extract state, timers, DOM observers, and event capture handlers into `src/hooks/<domain>/` and update `index.ts` barrel exports.
 4. **Phase 3 (Leaf Components & Orchestrator):** Extract isolated JSX sub-trees into leaf components and reduce the main component to a clean orchestrator (<200 lines).
-5. **Phase 4 (Documentation Sync — Mandatory):** Check whether `AGENTS.md` or any file in `.agents/rules/` (`core-react-state.md`, `mobile-touch.md`, `video-audio-media.md`, `styling-ui.md`, `cloudflare-architecture.md`) references the refactored file and update the architecture notes accordingly.
-6. **Phase 5 (Final Verification & Commit):** Run scoped Prettier, `npm run lint`, `npm test`, `npm run check`, bump `package.json` patch version once (if `package.json` is clean), commit on `preview`, and output a concise Completion Report (line-count delta + parity checklist).
+5. **Phase 4 (Documentation Sync — Mandatory):** Check whether `AGENTS.md` or every `.agents/rules/*.md` that references the refactored file and update the architecture notes accordingly.
+6. **Phase 5 (Final Verification & Commit):** Run scoped Prettier, `npm run lint`, `npm test`, `npm run check`, bump `package.json` patch version once (if `package.json` is clean), commit on the active development branch per `AGENTS.md` branch policy, and output a concise Completion Report (line-count delta + parity checklist).

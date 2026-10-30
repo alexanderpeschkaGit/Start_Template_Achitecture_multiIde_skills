@@ -8,8 +8,9 @@ description: "Apply this when authoring .agents rules, updating white-label SITE
 
 ## 1. Meta-Rule Authoring Standards (for `.agents/rules/*.md`)
 1. **Progressive Disclosure Frontmatter:** Every rule in `.agents/rules/` MUST start with YAML frontmatter using `trigger: model_decision`, explicit `globs: "..."`, and a 1-sentence `description: "Apply this when..."`.
+   - *Note:* `globs` is documentation only when using `trigger: model_decision` (Antigravity evaluates glob filtering only when `trigger: glob`); the routing table in `AGENTS.md` is authoritative.
 2. **Strict Token Budget (< 300 Lines):** Keep each rule file concise and domain-focused.
-3. **Falsifiable Audit Checklist:** End every rule file with 2â€“5 concrete, verifiable audit criteria.
+3. **Falsifiable Audit Checklist:** End every rule file with 2–5 concrete, verifiable audit criteria.
 
 ## 2. White-Label Configuration SSOT (`src/config/siteConfig.ts`)
 - Keep all brand identity, navigation categories, contact links, CDN endpoints, and SEO defaults in `SITE_CONFIG`.

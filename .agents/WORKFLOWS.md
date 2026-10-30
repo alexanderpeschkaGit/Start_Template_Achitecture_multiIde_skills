@@ -1,5 +1,8 @@
 # Global Workflow Commands
 
+> [!NOTE]
+> `#tags` (e.g. `#plan`, `#grillme`) take priority because `/plan` and `/grill-me` may be intercepted by host IDE slash commands.
+
 When a user request begins with a command or tag, read the corresponding local skill file in addition to `AGENTS.md`:
 
 - `#ask` (or `/ask`): `.agents/skills/ask/SKILL.md`
