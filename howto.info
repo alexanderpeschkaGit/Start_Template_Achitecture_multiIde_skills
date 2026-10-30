@@ -47,19 +47,53 @@ OPTION A — Automatisiert per PowerShell-Skript (Empfohlen):
 ----------------------------------------------------------
 Führe das beiliegende Skript aus und übergib den Pfad deines Zielprojekts:
 
-  # 1. Trockenlauf (zeigt geplante Dateien ohne Änderungen):
-  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemNeuenProjekt" -ProjectName "MeinProjektName" -DryRun
+  # 1. Trockenlauf (zeigt geplante Dateioperationen: CREATE, OVERWRITE, SKIP, MERGE):
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemProjekt" -ProjectName "MeinProjekt" -DryRun
 
   # 2. Ausführen:
-  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemNeuenProjekt" -ProjectName "MeinProjektName"
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemProjekt" -ProjectName "MeinProjekt"
+
+  # 3. Vorhandene Dateien im Ziel überschreiben (optional mit -Force):
+  powershell -ExecutionPolicy Bypass -File scripts\init-agent-architecture.ps1 -TargetDir "C:\Pfad\Zu\DeinemProjekt" -Force
+
+Was das Skript automatisch leistet:
+- Erstellt das Zielverzeichnis bei Bedarf.
+- Liest das Manifest ein und kopiert alle Governance-, Adapter- und Skill-Dateien.
+- Ersetzt in AGENTS.md den Platzhalter '(NewProject)' durch den tatsächlichen Projektnamen.
+- Führt intelligentes .gitignore-Merging durch: Existiert im Ziel bereits eine .gitignore,
+  werden ausschließlich fehlende Regeln aus dem '# --- agent-architecture ---'-Block angefügt.
+- Schließt Template-interne Artefakte (howto.info, scripts/, .git/, .tmp/, Bundles) strikt aus.
 
 
-OPTION B — Manuelles Kopieren (Drop-In):
-----------------------------------------
-Kopiere einfach alle Dateien und Ordner dieses Verzeichnisses (ohne diese howto.info)
-in das Root-Verzeichnis deines Zielprojekts:
+OPTION B — Manuelles Kopieren anhand des Manifests:
+---------------------------------------------------
+> [!WARNING] KEIN BLINDES KOPIEREN (Copy-Item .\*)!
+> Führe NIEMALS ein rekursives Wildcard-Kopieren ('Copy-Item .\*' oder Drag-and-Drop
+> aller Template-Dateien) durch! Ein blindes Kopieren überträgt unerwünschte interne
+> Hilfsdateien (howto.info, scripts/init-agent-architecture.ps1), temporäre Dateien (.tmp/)
+> oder Git-Metadaten und überschreibt eine bestehende .gitignore deines Zielprojekts.
 
-  powershell -Command "Copy-Item -Path '.\*' -Destination 'C:\Pfad\Zu\DeinemNeuenProjekt' -Recurse -Force -Exclude 'howto.info'"
+Kopiere stattdessen gezielt die folgenden Manifest-Dateien und Ordner in dein Projekt:
+
+1. Einzeldateien (Root):
+   - AGENTS.md                          (Header anpassen: '(NewProject)' -> Dein Projektname)
+   - GEMINI.md, CLAUDE.md, KIMI.md      (Thin Adapters)
+   - .clinerules, .windsurfrules        (IDE-Regeln)
+   - kilo.jsonc                         (Kilo Code Konfiguration)
+   - .gitattributes                     (CRLF/LF Zeilenenden-Normalisierung)
+
+2. Verzeichnisbäume:
+   - .agents/                           (Vollständiges Harness: WORKFLOWS.md, rules/, skills/)
+   - .cursor/rules/                     (Cursor Mode D Regel: agents.mdc)
+   - .trae/rules/                       (Trae Regel: project_rules.md)
+   - .kilo/agent/                       (Kilo Subagent-Definition: pro_planner.md)
+   - .github/                           (copilot-instructions.md & workflows/ci.yml)
+
+3. .gitignore Zusammenführung:
+   - Falls im Zielprojekt bereits eine .gitignore existiert: Kopiere den Block zwischen
+     '# --- agent-architecture ---' und '# --- end agent-architecture ---' aus der
+     Template-.gitignore und füge ihn am Ende der Ziel-.gitignore an.
+   - Falls noch keine .gitignore existiert: Kopiere .gitignore direkt.
 
 
 --------------------------------------------------------------------------------
@@ -68,85 +102,123 @@ in das Root-Verzeichnis deines Zielprojekts:
 
 [Root]
  │
- ├── AGENTS.md                  <-- LAYER 1: Zentraler Router & Projektvertrag.
- │                                  Host-Regeln (Windows/PowerShell/CRLF), 300/500-
- │                                  Zeilen-Limits, Decision Gates, Routing Table.
+ ├── AGENTS.md                          <-- LAYER 1: Zentraler Router & Projektvertrag.
+ │                                          Host-Regeln (Windows/PowerShell/CRLF), 300/500-
+ │                                          Zeilen-Limits, Decision Gates, Routing Table.
  │
  ├── IDE-ADAPTER (LAYER 0):
- │   ├── .cursor/rules/agents.mdc   (Cursor Mode D Adapter)
- │   ├── .trae/rules/project_rules.md (Trae Adapter)
+ │   ├── .cursor/rules/agents.mdc       (Cursor Mode D Adapter)
+ │   ├── .trae/rules/project_rules.md   (Trae Adapter)
  │   ├── .github/copilot-instructions.md (Copilot Adapter)
- │   ├── .clinerules                (Cline Adapter)
- │   ├── .windsurfrules             (Windsurf Adapter)
- │   ├── CLAUDE.md                  (Claude Code Adapter)
- │   ├── GEMINI.md                  (Gemini Adapter)
- │   ├── KIMI.md                    (Kimi Code Adapter mit 3-RPM Throttling)
- │   ├── kilo.jsonc & .kilo/        (Kilo Code v7 Multi-Agent Config)
+ │   ├── .github/workflows/ci.yml       (CI Pipeline: Node 22, lint/test/build)
+ │   ├── .clinerules                    (Cline Adapter)
+ │   ├── .windsurfrules                 (Windsurf Adapter)
+ │   ├── CLAUDE.md                      (Claude Code Adapter)
+ │   ├── GEMINI.md                      (Gemini Adapter)
+ │   ├── KIMI.md                        (Kimi Code Adapter mit 3-RPM Throttling)
+ │   ├── kilo.jsonc                     (Kilo Code v7 Root Configuration)
+ │   └── .kilo/agent/pro_planner.md     (Kilo Tier 3 Architectural Planner Subagent)
+ │
+ ├── PROJEKT-METADATEN & SETUP:
+ │   ├── .gitignore                     (Dependencies, OS Junk, IDE Cache, Agent-Artefakte)
+ │   ├── .gitattributes                 (CRLF / LF Normalisierung & Binär-Attribute)
+ │   ├── howto.info                     (Dieses Dokument – verbleibt im Template-Repo)
+ │   └── scripts/
+ │       └── init-agent-architecture.ps1 (Scaffold-Skript für neue Zielprojekte)
  │
  └── .agents/
       │
-      ├── WORKFLOWS.md          <-- LAYER 2A: Index aller 14 #tags und /commands.
+      ├── WORKFLOWS.md                  <-- LAYER 2A: Index aller #tags und /commands.
       │
-      ├── rules/                <-- LAYER 2B: Domänenspezifische Tiefenregeln.
+      ├── rules/                        <-- LAYER 2B: Domänenspezifische Tiefenregeln.
       │    ├── multi-ide-setup.md       (SSOT für Multi-IDE Modi A-D & Anti-Phantom Diff)
       │    ├── styling-ui.md            (CSS, Tailwind, Animationen, Responsive)
       │    ├── core-react-state.md      (Zustand Stores, Custom Hooks, API Services)
       │    ├── backend-edge.md          (Server, Edge Functions, Hono/Workers)
       │    └── boilerplate-standards.md (Meta-Regeln für Regeln & Scaffolding)
       │
-      └── skills/               <-- LAYER 2C: Ausführbare Workflow-Fähigkeiten.
-           ├── ask/             (#ask: Reines Lesen & Analysieren ohne Edit)
-           ├── grillme/         (#grillme: Strukturiertes Anforderungs-Interview)
-           ├── plan/            (#plan: Kontext-Scan & Phasenplan mit 1-10 Scores)
-           ├── exec/            (#exec: Schrittweise Umsetzung & Validierung)
-           ├── exec-wave/       (#exec-wave: Parallele & sequentielle Subagent-Wellen)
-           ├── flash/           (#flash: Micro-Batches & Single-Action Protokoll)
-           ├── review/          (#review: Read-only Code-Audit auf Bugs & Gates)
-           ├── refactor/        (#refactor: 100% verhaltensneutrale Refactorings)
-           ├── deep-refactor/   (#deep-refactor: Dekomposition von 500+ Zeilen Files)
-           ├── delegate/        (#delegate: Kontext-Isolation via Subagenten)
-           ├── solve/           (#solve: Problem-Diagnose + delegierter Fix in .tmp/)
-           ├── zip-clean/       (#zip-clean: Sauberes Projektarchiv ohne .git/temp)
-           ├── repomix/         (#repomix / #bundle: Kontext-Splitting für LLMs)
-           └── fetch-skill/     (#fetch-skill: Externe Skills importieren)
+      └── skills/                       <-- LAYER 2C: Ausführbare Workflow-Fähigkeiten.
+           ├── ask/                     (#ask: Reines Lesen & Analysieren ohne Edit)
+           ├── grillme/                 (#grillme: Strukturiertes Anforderungs-Interview)
+           ├── plan/                    (#plan: Kontext-Scan & Phasenplan mit 1-10 Scores)
+           ├── exec/                    (#exec: Schrittweise Umsetzung & Validierung)
+           ├── exec-wave/               (#exec-wave: Parallele & sequentielle Subagent-Wellen)
+           ├── flash/                   (#flash: Micro-Batches & Single-Action Protokoll)
+           ├── review/                  (#review: Read-only Code-Audit auf Bugs & Gates)
+           ├── refactor/                (#refactor: 100% verhaltensneutrale Refactorings)
+           ├── deep-refactor/           (#deep-refactor: Dekomposition von 500+ Zeilen Files)
+           ├── delegate/                (#delegate: Kontext-Isolation via Subagenten)
+           ├── solve/                   (#solve: Problem-Diagnose + delegierter Fix in .tmp/)
+           ├── zip-clean/               (#zip-clean: Sauberes Projektarchiv ohne .git/temp)
+           ├── fetch-skill/             (#fetch-skill: Externe Skills importieren)
+           └── repomix/                 (#repomix / #bundle: Kontext-Splitting <= 130k Chars)
+                └── scripts/
+                     ├── repomix.ps1        (CLI Runner mit Ordner-Normalisierung)
+                     ├── repomix-agents.ps1 (Regel- & Dokumentations-Bundler)
+                     └── repomix-audit.ps1  (Automatisierter Zeichen-Audit <= 130.000 Chars)
 
 
 --------------------------------------------------------------------------------
 4. ANPASSUNGS-CHECKLISTE FÜR DEIN NEUES PROJEKT
 --------------------------------------------------------------------------------
 
-Nach dem Kopieren in ein neues Projekt passe in wenigen Minuten Folgendes an:
+Nach dem Kopieren in ein neues Projekt passe folgende Punkte an:
 
-[ ] 1. AGENTS.md:
-       - Überschrift & Host-Abschnitt anpassen (falls Linux/macOS statt Windows).
-       - Routing-Tabelle ("Deterministic File-to-Rule Routing") an deine
-         Verzeichnisstruktur anpassen (z.B. src/modules/** statt src/components/**).
-       - Verifikations-Befehle prüfen: npm run lint / npm test / cargo test etc.
+[ ] 1. AGENTS.md konfigurieren:
+       - Überschrift anpassen: '# Engineering and Assistant Instructions (<ProjektName>)'
+       - Host-Abschnitt prüfen (Standard: Windows 11 x64 mit PowerShell 5.1+ und CRLF).
+       - Routing-Tabelle ('Deterministic File-to-Rule Routing') an deine Projektpfade
+         anpassen (z.B. 'src/features/**' statt 'src/components/**').
+       - Kanonische Verifikationsbefehle definieren (npm run lint / npm test / cargo test).
+       - Branch-Policy beachten: Checkpoint-Commits erfolgen immer auf dem aktiven
+         Entwicklungs-Branch ('preview' oder 'feature/*' / 'task/*'; niemals direkt auf 'main').
 
-[ ] 2. .agents/rules/*.md:
-       - Domänenregeln an deinen Tech-Stack anpassen.
-       - WICHTIG: Jede Regeldatei MUSS mit dem YAML-Frontmatter beginnen:
+[ ] 2. Domänenspezifische Tiefenregeln (.agents/rules/*.md):
+       - Regeln an deinen Tech-Stack (Frontend, State, Backend, Database) anpassen.
+       - Jede Regeldatei MUSS mit validem YAML-Frontmatter starten:
          ---
          trigger: model_decision
-         globs: "dein/pfad/**/*.ts"
-         description: "Apply this when working on <Thema>."
+         globs: "src/domain/**/*.ts"
+         description: "Apply this when working on <Bereich>."
          ---
+       - Halte jede Regeldatei unter 300 Zeilen und schließe sie mit 2–5 konkreten,
+         falsifizierbaren Akzeptanzkriterien ab.
 
-[ ] 3. package.json:
-       Standard-Skripte für Lint, Format und Test einrichten.
+[ ] 3. package.json & Empfohlene npm-Skripte:
+       - Standard-Skripte für CI-Gates:
+         "lint": "eslint .",
+         "format": "prettier --write .",
+         "test": "vitest run"
+       - Optionale Convenience-Skripte für Agenten-Workflows:
+         "zip": "powershell -NoProfile -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1",
+         "repomix": "powershell -NoProfile -ExecutionPolicy Bypass -File .agents/skills/repomix/scripts/repomix.ps1",
+         "repomix:agents": "powershell -NoProfile -ExecutionPolicy Bypass -File .agents/skills/repomix/scripts/repomix-agents.ps1"
+
+[ ] 4. Git- & CI-Hygiene:
+       - Sicherstellen, dass .gitignore die '# --- agent-architecture ---'-Einträge enthält.
+       - .gitattributes für einheitliche Zeilenenden (CRLF auf Windows) beibehalten.
+       - CI-Pipeline (.github/workflows/ci.yml) für automatische Validierung bei Pull Requests nutzen.
 
 
 --------------------------------------------------------------------------------
 5. ARBEITEN MIT DEN WORKFLOW-TAGS
 --------------------------------------------------------------------------------
 
-- Vor unklaren Features:
+- Vor unklaren Features oder Architekturentscheidungen:
     > "#grillme Ich möchte Feature X einbauen."
-- Vor der Implementierung:
+- Vor jeder Implementierung:
     > "#plan Erstelle einen Umsetzungsplan für Feature X."
 - Zur schrittweisen Ausführung:
     > "#exec all" oder "#exec-wave"
-- Für Qualitäts- und Sicherheitsprüfungen:
+- Bei Flash-Modellen oder instabilen Tool-Chains:
+    > "#flash Führe die Schritte mit Single-Action-Protokoll aus."
+- Für Qualitäts- und Sicherheitsprüfungen vor dem Merge:
     > "#review Prüfe die geänderten Dateien auf Regressionen."
+- Für verhaltensneutrale Refactorings und Dekomposition:
+    > "#refactor" oder "#deep-refactor"
+- Zur Kontext-Isolation via isolierte Subagenten:
+    > "#delegate" oder "#solve"
+- Für Kontext-Bundling & Exporte:
+    > "#repomix" (<= 130k Chars pro Chunk) oder "#zip-clean"
 
 ================================================================================
