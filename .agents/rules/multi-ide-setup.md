@@ -38,6 +38,11 @@ All execution workflows follow a **Flash-First, Pro-on-Demand** tiering model ba
 | **Tier 2 (`FLASH`)**      | `4–6`            | Standard component/hook batches (<= 3–4 files, clear interfaces, <500 lines)       | `flash` _(Default)_         |
 | **Tier 3 (`PRO`)**        | `7–10`           | Cross-file Zustand state, SSR/Hydration, Audio/Video lifecycles, files >=500 lines | `pro` _(+ Reviewer at >=8)_ |
 
+### 3-Tier Per-Batch Model Selection Rules
+
+- **Tier 1 (`flash_lite` — Score 1–3):** Trivial/mechanical batches. Auto-Upgrade Guard: If a batch tagged `flash_lite` touches 4 or more files, Coordinator MUST automatically escalate its Model to `flash` upon invocation.
+- **Tier 2 (`flash` — Score 4–6, Default):** Standard scoped implementation batches.
+- **Tier 3 (`pro` — Score 7–10 or Unsliced Files >= 500 Lines): Complex state refactors, unsliced files >= 500 lines. Explicit `#flash` Override: If `#flash` is explicitly specified by user or roadmap, batches touching >= 500 line files route to `flash` instead of `pro`, provided the batch File Inventory <= 3 files and complexity score <= 6.
 - **Auto-Escalation Rule:** If a Tier 1 (`flash_lite`) or Tier 2 (`flash`) step fails validation (`npm run lint` / `npm test`) and survives **one** targeted diagnostic repair attempt, escalate that specific step/batch immediately to Tier 3 (`pro`).
   - **Zero-PRO Token Guard (`--no-pro` / `--no-pro-escalation`):** If `--no-pro` is explicitly flagged or budget mode is active, automatic PRO escalation is suppressed. The agent halts in **Graceful Pause (Dirty Inspection)** after the single repair attempt to preserve modified files without spending PRO tokens.
 
@@ -48,13 +53,13 @@ When executing `#exec`, `#exec-wave`, `#delegate`, or `#deep-refactor`, translat
 1. **Mode A — Native Multi-Model Subagents (e.g., Antigravity):**
    - Triggering `#exec` or `#exec-wave` explicitly authorizes tiered `Model` selection (`'flash_lite' | 'flash' | 'pro'`) over the default `'inherit'`.
    - Spawn isolated implementation subagents via `invoke_subagent` with `TypeName: 'self'` and explicit `Model: 'flash_lite' | 'flash' | 'pro'` per step/batch. For `Score >= 8` Red-Team audits, spawn a read-only auditor with `TypeName: 'research'`, `Model: 'pro'`, and `Role: 'Red-Team Auditor'` returning a compact 2-point audit report (`Verdict`, `Findings`).
-   - **Kilo Code v7:** Its project `kilo.jsonc` uses an OpenCode-compatible configuration shape. Kilo loads root `AGENTS.md` automatically; list `.agents/WORKFLOWS.md` in the `instructions` array. Map `invoke_subagent` model tiers to Kilo's native `Task` tool and the configured `agent` identifiers (`flash_lite`, `flash`, `pro`, and `research`).
+   - **Kilo Code v7:** Its project `kilo.jsonc` uses an OpenCode-compatible configuration shape. Kilo loads root `AGENTS.md` automatically; list `.agents/WORKFLOWS.md` in the `instructions` array. Map `invoke_subagent` model tiers to Kilo's native `Task` tool and configured agent identifiers: Tier 1 -> `flash_lite`, Tier 2 -> `flash`, Tier 3 -> `pro` (implementer agent), architectural planning -> `pro_planner`, and `research` for read-only audits.
    - In VS Code, set `"files.autoSave": "afterDelay"` so agent edits are written to disk before filesystem and diff audits.
    - Support concurrent Scatter-Gather waves for disjoint file inventories.
    - Emit clickable live stream links immediately upon launching (`[⚡ Watch Stream](conversation://<conversation-id>)` or `[🛡️ Watch Red-Team Audit](conversation://<reviewer-conversation-id>)`).
    - Enforce the standardized 3-point completion feedback contract (`Status`, `Files Modified`, `Summary`) from all implementation subagents to aggregate clean wave summaries without context bloat.
 2. **Mode B — Fixed-Model or Rate-Limited Subagents (e.g., Kimi Code, Claude Code CLI):**
-   - Spawn subagents using the host's default/inherited model (`inherit` or `subagent_type="coder"`) to keep the Coordinator context clean.
+   - Spawn subagents using the host's default/inherited model (`inherit` or `subagent_type="coder"`) to keep the Coordinator context clean. (Claude Code: Task subagents can map tiers to `haiku` / `sonnet` / `opus` via `model`; otherwise use `inherit`).
    - Apply `.agents/skills/flash/SKILL.md` stability rules and the 3-point completion feedback contract inside every subagent.
    - If the host UI cannot handle `conversation://` URIs, display the subagent ID and transcript file path as a readable fallback. Respect host concurrency limits (such as the sequential queue in `KIMI.md`).
 3. **Mode C — Single-Agent IDEs without Subagents (e.g., Cline, Windsurf):**
@@ -77,7 +82,7 @@ Six files form one atomic documentation unit. A change to the tier table, the di
 `.agents/rules/multi-ide-setup.md` · `.agents/skills/plan/SKILL.md` · `.agents/skills/exec/SKILL.md` · `.agents/skills/exec-wave/SKILL.md` · `.agents/skills/delegate/SKILL.md` · `.agents/skills/solve/SKILL.md`
 
 - **No partial updates:** Never stage a lockstep change while another group member still documents the previous tier split, audit protocol, or link-label convention.
-- **Parity probe:** `Select-String -Path .agents/skills/*/SKILL.md -Pattern 'flash_lite'` must match every execution skill in the group.
+- **Parity probe:** `Select-String -Path .agents/skills/{plan,exec,exec-wave,delegate,solve}/SKILL.md -Pattern 'multi-ide-setup.md'` must match every workflow skill in the lockstep group.
 
 ## Combo Anti-Phantom Diff Audit
 
@@ -94,7 +99,10 @@ git --no-pager status --porcelain
 
 ## Shared Cross-IDE Working State (`.tmp/`)
 
-For workflows that maintain execution context or reports across IDE boundaries (such as `#solve` and `#delegate`), the living plan and final change report are stored at `.tmp/solve_report.md` (gitignored). This ensures that any editor or IDE can open and display the report with standard `file:///` markdown links without depending on IDE-internal storage directories.
+For workflows that maintain execution context or reports across IDE boundaries (such as `#solve` and `#delegate`), working state and living plans are stored in `.tmp/` (gitignored) to ensure any editor or IDE can open and display files with standard `file:///` markdown links without depending on IDE-internal storage directories:
+- `#solve` writes analysis & plan to `.tmp/solve_report.md`.
+- Standalone `#delegate` writes to `.tmp/delegate_plan.md`.
+- When `#delegate` is invoked as part of `#solve`, it passes `.tmp/solve_report.md` as its context file.
 
 ## Acceptance & Audit Criteria
 
