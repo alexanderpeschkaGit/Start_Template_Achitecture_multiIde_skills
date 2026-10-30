@@ -1,11 +1,37 @@
-# Dependencies & Build Outputs
+# Dependencies
 node_modules/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Build Outputs & Framework Artifacts
 dist/
 build/
+out/
 dist-ssr/
 *.tsbuildinfo
 .eslintcache
+.cache/
+.parcel-cache/
+.turbo/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+
+# Serverless & Edge (Cloudflare / Wrangler)
+.wrangler/
+.mf/
+
+# Testing & Coverage
 coverage/
+.nyc_output/
+playwright-report/
+test-results/
+.vitest/
 
 # OS Junk
 Thumbs.db
@@ -13,6 +39,9 @@ Thumbs.db:encryptable
 ehthumbs.db
 [Dd]esktop.ini
 .DS_Store
+._*
+.Spotlight-V100
+.Trashes
 $RECYCLE.BIN/
 
 # Environment & Secrets
@@ -32,7 +61,7 @@ credentials.json
 token.json
 auth_token*
 
-# IDE & Editor Cache
+# General IDE & Editor Junk
 .idea/
 .fleet/
 .history/
@@ -45,19 +74,9 @@ auth_token*
 *.sln
 *.sw?
 
-# IDE Rule & Configuration Exceptions
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.cursor/*
-!.cursor/rules/
-.trae/*
-!.trae/rules/
-.windsurf/*
-!.windsurf/rules/
-!.github/copilot-instructions.md
+# Note: Multi-IDE architecture configurations (.cursor/, .trae/, .windsurf/, .kilo/, .vscode/, .github/, .agents/)
+# and root adapters (AGENTS.md, CLAUDE.md, GEMINI.md, KIMI.md, .clinerules, .windsurfrules, kilo.jsonc)
+# are core repository components and remain fully tracked inside the repository.
 
 # Logs & Temporary Files
 *.log
@@ -70,9 +89,11 @@ pnpm-debug.log*
 .tmp/
 .tmp-*
 
-# Archives
+# Archives & Patches
 *.zip
+*.tar.gz
 *.diff
+*.patch
 
 # --- agent-architecture ---
 # Repomix & Stale Context Bundles
