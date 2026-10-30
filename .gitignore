@@ -1,0 +1,86 @@
+# Dependencies & Build Outputs
+node_modules/
+dist/
+build/
+dist-ssr/
+*.tsbuildinfo
+.eslintcache
+coverage/
+
+# OS Junk
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+[Dd]esktop.ini
+.DS_Store
+$RECYCLE.BIN/
+
+# Environment & Secrets
+.env*
+!.env.example
+.dev.vars*
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+secrets/
+credentials.json
+token.json
+auth_token*
+
+# IDE & Editor Cache
+.idea/
+.fleet/
+.history/
+*.code-workspace
+.sublime-workspace
+.sublime-project
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# IDE Rule & Configuration Exceptions
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.cursor/*
+!.cursor/rules/
+.trae/*
+!.trae/rules/
+.windsurf/*
+!.windsurf/rules/
+!.github/copilot-instructions.md
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+.tmp/
+.tmp-*
+
+# Archives
+*.zip
+*.diff
+
+# --- agent-architecture ---
+# Repomix & Stale Context Bundles
+/repomix-output/
+/repomix-output*
+/repomix_*
+repomix-output.xml
+*bundle*.txt
+_worker.bundle*
+.dev-server*.log
+# --- end agent-architecture ---

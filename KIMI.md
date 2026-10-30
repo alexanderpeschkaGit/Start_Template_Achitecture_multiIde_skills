@@ -37,6 +37,6 @@ When executing `#deep-refactor`, `#refactor`, or any workflow that normally uses
 3. **Mega-File Pipeline:** For large files, follow the sequential pipeline (State → Hooks → UI components → Cutover), completing each phase sequentially and running validation only after each full phase rather than after every file change.
 4. **Validation Pacing:** Allow the compiler and file system to settle; pause 25 seconds after the last file edit before running `tsc` or `npm run build`.
 
-## Tooling Notes for This Environment
+## Tooling Notes
 
-Kimi Code on this machine runs through Git Bash. The project’s `AGENTS.md` recommends PowerShell-native cmdlets for manual use, but Kimi Code’s file tools (`Read`, `Edit`, `Write`, `Glob`, `Grep`) and Bash tool are the preferred way to interact with the repository from this agent. Prefer the dedicated file tools over raw shell commands for file operations; use Bash only for shell semantics (npm, git, build runners) and observe the single-action protocol.
+If the Kimi host runs in Git Bash, note that the project's `AGENTS.md` PowerShell contract remains the authoritative workspace standard for scripts, builds, and host automation. Kimi Code's dedicated file tools (`Read`, `Edit`, `Write`, `Glob`, `Grep`) and Bash tool are the preferred way to interact with the repository from this agent. Prefer the dedicated file tools over raw shell commands for file operations; use Bash only for shell semantics (npm, git, build runners) and observe the single-action protocol.

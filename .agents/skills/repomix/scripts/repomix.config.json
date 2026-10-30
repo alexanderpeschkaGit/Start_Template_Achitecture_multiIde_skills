@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/yamadashy/repomix/main/repomix.config.schema.json",
+  "output": {
+    "filePath": "repomix-output/bundle.txt",
+    "style": "xml",
+    "splitOutput": 120000,
+    "parsableStyle": true,
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 5
+  },
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "scripts/patches_and_tests/**",
+      "plans/**",
+      "*.zip",
+      "*bundle*.txt",
+      "repomix-output/**",
+      "repomix-output*"
+    ]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}

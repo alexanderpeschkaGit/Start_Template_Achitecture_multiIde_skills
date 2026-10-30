@@ -1,7 +1,0 @@
----
-description: SEO / Edge SSR / hydration domain — load canonical rule before editing
-globs: functions/**/*.ts,scripts/prerender.js,index.html,src/App.tsx,src/utils/projectText.ts
-alwaysApply: false
----
-
-Before editing matched files, Read and follow `.agents/rules/seo-ssr-hydration.md` (canonical). Do not duplicate or override that policy here.

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/yamadashy/repomix/main/repomix.config.schema.json",
+  "include": [
+    "AGENTS.md",
+    ".agents/WORKFLOWS.md",
+    ".agents/rules/*.md",
+    ".agents/skills/**/*.md",
+    ".agents/skills/**/scripts/*.ps1",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "KIMI.md",
+    ".clinerules",
+    ".windsurfrules",
+    ".cursor/rules/*.mdc",
+    ".trae/rules/*.md",
+    ".github/copilot-instructions.md",
+    "kilo.jsonc",
+    ".kilo/agent/*.md"
+  ],
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "parsableStyle": true,
+    "headerText": "Agent Architecture & Instructions Bundle"
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}

@@ -1,7 +1,0 @@
----
-description: Video/audio/media domain — load canonical rule before editing
-globs: src/components/video/**/*.tsx,src/hooks/video/**/*.ts,src/store/useVideoStore.ts,src/utils/bunnyPoster.ts,src/utils/videoFormatting.ts
-alwaysApply: false
----
-
-Before editing matched files, Read and follow `.agents/rules/video-audio-media.md` (canonical). Do not duplicate or override that policy here.

@@ -13,13 +13,17 @@ description: >-
 
 ## Capabilities & Modes
 
-The skill provides three modes of operation via its bundled PowerShell script `scripts/zip-clean.ps1`:
+The skill provides three modes of operation via its bundled PowerShell script `.agents/skills/zip-clean/scripts/zip-clean.ps1`:
 
 | Mode | Command Flag | Inclusions | Best For |
 | :--- | :--- | :--- | :--- |
 | **`WorkingTree`** *(Default)* | `-Mode WorkingTree` | Tracked files + newly added untracked non-ignored files | Sharing current work-in-progress, backups, code handoffs with active uncommitted changes |
-| **`Head`** | `-Mode Head` | Strictly committed files at `HEAD` | Clean release packaging, tagged version snapshots |
+| **`Head`** | `-Mode Head` | Strictly committed files at `HEAD` (via `git archive`) | Clean release packaging, tagged version snapshots without dirty working tree state |
 | **`TrackedOnly`** | `-Mode TrackedOnly` | Tracked files only (reflecting current file content) | Excluding all untracked files while preserving uncommitted edits to tracked files |
+
+### Unicode & Non-ASCII Path Support
+
+The script natively supports paths with Unicode characters, spaces, and umlauts. It sets console output encoding to UTF-8 (`[System.Text.UTF8Encoding]::new($false)`) within a try/finally block and queries Git using `-c core.quotePath=false` and `-z` (NUL-byte delimiters) to avoid octal character escaping and encoding corruption.
 
 ---
 
@@ -39,7 +43,7 @@ When the user asks to create a zip or triggers `#zip-clean`:
    ```
    *Custom path example:*
    ```powershell
-   powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -OutputPath "C:\Backups\Portfolio_Clean.zip" -Force
+   powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -OutputPath "C:\Backups\Project_Clean.zip" -Force
    ```
    *Dry-run example:*
    ```powershell
@@ -60,13 +64,29 @@ When the user asks to create a zip or triggers `#zip-clean`:
 
 ---
 
-### Option 2: Quick Terminal / npm Command
+### Option 2: Quick Terminal / npm Script (Optional)
 
-Users can directly run from PowerShell:
+If desired, an optional npm script shortcut can be added to `package.json`:
+
+```json
+{
+  "scripts": {
+    "zip": "powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1"
+  }
+}
+```
+
+When configured, users can directly run from PowerShell:
 ```powershell
 npm run zip
 ```
-Or with custom arguments:
+Or with custom arguments passed through npm:
+```powershell
+npm run zip -- -DryRun
+npm run zip -- -OutputPath "release.zip" -Mode Head -Force
+```
+
+Alternatively, invoke the PowerShell script directly:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -DryRun
 powershell -ExecutionPolicy Bypass -File .agents/skills/zip-clean/scripts/zip-clean.ps1 -OutputPath "release.zip" -Mode Head -Force
@@ -84,7 +104,7 @@ git archive -o "archive_HEAD.zip" HEAD
 
 ---
 
-## Parameter Reference (`scripts/zip-clean.ps1`)
+## Parameter Reference (`.agents/skills/zip-clean/scripts/zip-clean.ps1`)
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -95,7 +115,7 @@ git archive -o "archive_HEAD.zip" HEAD
 | `-DryRun` | `switch` | `false` | Lists files and counts without writing any file to disk. |
 | `-Force` | `switch` | `false` | Overwrites destination `.zip` if it already exists. |
 
-> [!NOTE] **Non-Git Fallback:** When `git ls-files` returns nothing (no repository, or an empty index), the script enumerates the directory tree directly and skips `.git`, `node_modules`, `dist`, `.wrangler`, `.tmp`, and every `repomix*` directory (such as `repomix-output/`) before applying `-AdditionalExcludes`. Fallback archives therefore never include dependencies, build output, local Wrangler state, or bundler dumps.
+> [!NOTE] **Git Repository vs. Directory Fallback:** The script checks `git rev-parse --is-inside-work-tree`. If inside a Git repository but the queried mode returns zero files (e.g. `Head` mode before the initial commit), the script throws an error rather than incorrectly archiving the unignored directory tree. The directory fallback (`Get-ChildItem -Recurse -File`) only activates when the script is executed outside of a Git repository entirely, skipping `.git`, `node_modules`, `dist`, `.wrangler`, `.tmp`, and every `repomix*` directory before applying `-AdditionalExcludes`.
 
 ---
 
